@@ -3,15 +3,28 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { options } from "../utils/httpOptions.js";
 
+const generateAccessAndRefreshToken = async(userId) => {
+  try {
+    const user = await User.findById(userId);
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
 
+    user.refreshToken = refreshToken
+    await user.save({validateBeforeSave : false})
+    return {accessToken, refreshToken};
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong while generating access & refresh token")
+  }
+}
 
 const registerUser = asyncHandler(async (req, res) => {
 
   //take input details from user
   const username = req.body.username?.trim().toLowerCase();
   const email = req.body.email?.trim().toLowerCase();
-  const password = req.body.password;
+  const password = req.body.password?.trim();
   
   console.log(req.body);
   
@@ -45,11 +58,9 @@ const registerUser = asyncHandler(async (req, res) => {
   
 
   //upload avatar to cloudinary
-  const avatar = await uploadOnCloudinary(avatarLocalPath)
-  console.log("avatar2 : ",avatar);
-    if(!avatar){
-    throw new ApiError(400, "Avatar File is Required");
-  }
+  const avatar = avatarLocalPath
+    ? await uploadOnCloudinary(avatarLocalPath)
+    : null;
 
   
 
@@ -74,7 +85,7 @@ const registerUser = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(
-      new ApiResponse(200,
+      new ApiResponse(201,
           createdUser,
         "User created successfully!!"
       )
@@ -83,6 +94,56 @@ const registerUser = asyncHandler(async (req, res) => {
 })
 
 
+const loginUser = asyncHandler(async(req, res) => {
+
+  //get username/email + password
+  const username = req.body.username?.trim().toLowerCase();
+  const email = req.body.email?.trim().toLowerCase();
+  const password = req.body.password?.trim();
+
+  //verify the fields
+  if(!username && !email){
+    throw new ApiError(400, "Email or Username is required!!")
+  }
+  if(!password){
+    throw new ApiError(400, "password is required!!")
+  }
+
+  //check if user exist
+  const user = await User.findOne({
+    $or: [{username}, {email}]
+  }).select("-refreshToken")
+
+  if(!user){
+    throw new ApiError(404, "user not found!!")
+  }
+
+  //verify password
+  const isValidPassword = await user.isPasswordCorrect(password)
+
+  if(!isValidPassword){
+    throw new ApiError(401, "Invalid Credentials!!")
+  }
+
+  //generate access and refresh token
+  const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user?._id)
+
+  const loggedInUser = await User.findById(user?._id).select("-password -refreshToken")
+
+  //send access and refreshtoken to user
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(200,{
+        user: loggedInUser, accessToken, refreshToken
+      },
+      "User LoggedIn Successfully"
+    ))
+})
+
 export {
-  registerUser
+  registerUser,
+  loginUser,
 }
