@@ -1,7 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { options } from "../utils/httpOptions.js";
 import { Note } from "../models/note.model.js";
 
 const getNoteByIdAndVerifyOwner = async(noteId, userId) => {
@@ -107,7 +106,28 @@ const pinNote = asyncHandler(async(req, res) => {
     )
 })
 
+const updateNote = asyncHandler(async(req, res) => {
+  const title = req.body.title?.trim();
+  const content = req.body.content?.trim();
 
+  if(!title && !content ){
+    throw new ApiError(400, "At Least One Field is required!!")
+  }
+
+  const note = await getNoteByIdAndVerifyOwner(req.params.id, req.user._id);
+
+  title && (note.title = title)
+  content && (note.content = content);
+
+  await note.save()
+
+  return res 
+    .status(200)
+    .json(
+      new ApiResponse(200, note, "Note Updated Successfully")
+    )
+
+})
 
 
 
@@ -116,5 +136,6 @@ export {
   getNotes,
   getNoteById,
   deleteNote,
-  pinNote
+  pinNote,
+  updateNote
 }
