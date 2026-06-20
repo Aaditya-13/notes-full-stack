@@ -27,3 +27,9 @@ const createNote = asyncHandler(async(req, res) => {
       new ApiResponse(201, note, "Note Successfully Created !!")
     )
 })
+
+
+
+export {
+  createNote
+}
