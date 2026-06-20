@@ -88,6 +88,26 @@ const deleteNote = asyncHandler(async(req, res) => {
     )
 })
 
+const pinNote = asyncHandler(async(req, res) => {
+
+  const note = await getNoteByIdAndVerifyOwner(req.params.id, req.user._id);
+
+  note.isPinned = !note.isPinned
+
+  await note.save();
+
+  const message = note.isPinned
+  ? "Note pinned successfully"
+  : "Note unpinned successfully";
+
+  return res 
+    .status(200)
+    .json(
+      new ApiResponse(200, note, message)
+    )
+})
+
+
 
 
 
@@ -95,5 +115,6 @@ export {
   createNote,
   getNotes,
   getNoteById,
-  deleteNote
+  deleteNote,
+  pinNote
 }
