@@ -28,8 +28,24 @@ const createNote = asyncHandler(async(req, res) => {
     )
 })
 
+const getNotes = asyncHandler(async(req, res) => {
+  const owner = req.user._id;
 
+  const notes = await Note
+    .find({owner})
+    .sort({
+      isPinned: -1,
+      updatedAt: -1
+    });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, notes, "Notes Successfully Fetched!!")
+    )
+})
 
 export {
-  createNote
+  createNote,
+  getNotes
 }
