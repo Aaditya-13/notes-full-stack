@@ -217,10 +217,48 @@ const changePassword = asyncHandler(async(req, res) => {
   )
 })
 
+const updateDetails = asyncHandler(async(req, res) => {
+  //get fullName or email
+  const fullName = req.body.fullName?.trim();
+  const email = req.body.email?.trim().toLowerCase();
+
+  //check for empty fields => both empty => throw error
+  if(!email && !fullName){
+    throw new ApiError(400, "All fields required!!")
+  }
+
+  //load user
+  const user = req.user;
+
+  //if fullName exist change fullName
+  if(fullName){
+    user.fullName = fullName
+  }
+
+  //if email exist change email
+  if(email){
+    user.email = email
+  }
+
+  //save user
+  await user.save({validateBeforeSave:false});
+
+  //return response
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, {
+          email : user.email,
+          fullName : user.fullName
+      }, "Details Updated Successfully !!")
+    )
+})
+
 export {
   registerUser,
   loginUser,
   getCurrentUser,
   logoutUser,
-  changePassword
+  changePassword,
+  updateDetails
 }
