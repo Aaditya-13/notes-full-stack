@@ -174,9 +174,53 @@ const logoutUser = asyncHandler(async(req, res) => {
   
 })
 
+const changePassword = asyncHandler(async(req, res) => {
+  //get new & old password
+  const oldPassword = req.body.oldPassword?.trim();
+  const newPassword = req.body.newPassword?.trim();
+
+  //check if not empty
+  if(!oldPassword || !newPassword){
+    throw new ApiError(
+      400,
+      "Old password and new password are required"
+    )
+  }
+
+  //check of similarity
+  if (oldPassword === newPassword) {
+    throw new ApiError(
+      400,
+      "New password must be different from old password"
+    )
+  }
+
+  //get the user by id, because req.user doesnt have password
+  const user = await User.findById(req.user._id).select("-refreshToken")
+
+  //check password validity
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+
+  if(!isPasswordCorrect){
+    throw new ApiError(401, "Invalid Password!!")
+  }
+
+  //update password dont forget await
+  user.password = newPassword
+
+  await user.save({validateBeforeSave:false})
+
+
+  //return response
+  return res.status(200).json(
+    new ApiResponse(200,{},"Password Changed Successfully !!")
+  )
+})
+
 export {
   registerUser,
   loginUser,
   getCurrentUser,
-  logoutUser
+  logoutUser,
+  changePassword
 }
