@@ -66,7 +66,7 @@ const getNotes = asyncHandler(async(req, res) => {
 
 const getNoteById = asyncHandler(async(req, res) => {
 
-  const note = getNoteByIdAndVerifyOwner(req.params.id. req.user._id);
+  const note = await getNoteByIdAndVerifyOwner(req.params.id, req.user._id);
 
   return res 
     .status(200)
@@ -75,10 +75,25 @@ const getNoteById = asyncHandler(async(req, res) => {
     )
 })
 
+const deleteNote = asyncHandler(async(req, res) => {
+
+  const note = await getNoteByIdAndVerifyOwner(req.params.id, req.user._id);
+
+  await note.deleteOne();
+
+  return res 
+    .status(200)
+    .json(
+      new ApiResponse(200, {}, "Note Deleted successfully")
+    )
+})
+
+
 
 
 export {
   createNote,
   getNotes,
-  getNoteById
+  getNoteById,
+  deleteNote
 }
