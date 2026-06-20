@@ -65,7 +65,7 @@ const getNotes = asyncHandler(async(req, res) => {
 })
 
 const getNoteById = asyncHandler(async(req, res) => {
-  
+
   const note = getNoteByIdAndVerifyOwner(req.params.id. req.user._id);
 
   return res 
@@ -75,7 +75,10 @@ const getNoteById = asyncHandler(async(req, res) => {
     )
 })
 
+
+
 export {
   createNote,
-  getNotes
+  getNotes,
+  getNoteById
 }
