@@ -3,61 +3,20 @@ import "../styles/notes.css";
 
 export default function NotesPage() {
 
+  // fetch total count of notes associated with userId
+  let totalPinned = 0;
+
+  // fetch total pinned count of notes associated with userId
+  let totalNotes = 0;
+
+  // for sidebar
   const [activeTab, setActiveTab] = useState("all");
 
-  const pinnedNotes = [
-    {
-      id: 1,
-      title: "Design System Documentation",
-      content:
-        "Ensure that all shared components adhere strictly to the JSON specifications.",
-      tag: "Project Alpha",
-      color: "yellow",
-      date: "2h ago"
-    },
-    {
-      id: 2,
-      title: "Grocery & Meal Prep",
-      content:
-        "Chicken breasts, Sweet potatoes, Broccoli...",
-      tag: "Personal",
-      color: "white",
-      date: "Yesterday"
-    },
-    {
-      id: 3,
-      title: "Brutalist Arch Refs",
-      content:
-        "Collected references for the dashboard redesign.",
-      tag: "Moodboard",
-      color: "white",
-      date: "Oct 12"
-    }
-  ];
+  // top 3 pinned notes
+  const pinnedNotes = [];
 
-  const recentNotes = [
-    {
-      id: 4,
-      title: "Weekly Sync",
-      content:
-        "Discussed Q3 roadmap and backend milestones.",
-      date: "Oct 10"
-    },
-    {
-      id: 5,
-      title: "App Restructure",
-      content:
-        "Move settings panel into modal component.",
-      date: "Oct 08"
-    },
-    {
-      id: 6,
-      title: "Q4 OKRs",
-      content:
-        "Launch V2, increase retention.",
-      date: "Oct 05"
-    }
-  ];
+  // top 4 recent notes (pinned can also be included)
+  const recentNotes = [];
 
   return (
     <div className="notes-page">
@@ -85,7 +44,7 @@ export default function NotesPage() {
         </div>
 
         <button className="create-note-btn">
-          + Create Note
+          + Create New Tag
         </button>
 
         <nav className="sidebar-nav">
@@ -102,21 +61,33 @@ export default function NotesPage() {
           </button>
 
           <button
-            className="sidebar-link"
+            className={`sidebar-link ${
+              activeTab === "pinned"
+                ? "active-sidebar-link"
+                : ""
+            }`}
             onClick={() => setActiveTab("pinned")}
           >
             Pinned
           </button>
 
           <button
-            className="sidebar-link"
+            className={`sidebar-link ${
+              activeTab === "trash"
+                ? "active-sidebar-link"
+                : ""
+            }`}
             onClick={() => setActiveTab("trash")}
           >
             Trash
           </button>
 
           <button
-            className="sidebar-link"
+            className={`sidebar-link ${
+              activeTab === "archived"
+                ? "active-sidebar-link"
+                : ""
+            }`}
             onClick={() => setActiveTab("archived")}
           >
             Archived
@@ -148,8 +119,8 @@ export default function NotesPage() {
 
           </div>
 
-          <div className="profile-avatar">
-            👨‍💻
+          <div className="reminder-bell">
+            🔔
           </div>
 
         </header>
@@ -165,7 +136,7 @@ export default function NotesPage() {
             </h1>
 
             <p className="hero-subtitle">
-              You have 12 notes pinned and 48 total.
+              You have {totalPinned} notes pinned and {totalNotes} total.
             </p>
 
           </div>
@@ -185,7 +156,7 @@ export default function NotesPage() {
         <section className="notes-section">
 
           <h2 className="section-title">
-            📌 Pinned Focus
+            Pinned Focus 📌 
           </h2>
 
           <div className="pinned-grid">

@@ -72,7 +72,7 @@ export default function LoginPage() {
               <input
                 className="input-field"
                 type="text"
-                placeholder="creator@inkandiron.app"
+                placeholder="Username"
                 value={username}
                 onChange={updateUsername}
               />

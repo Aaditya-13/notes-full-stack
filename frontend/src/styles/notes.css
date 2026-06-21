@@ -196,7 +196,7 @@
   box-shadow:4px 4px 0 #1c1b1b;
 }
 
-.profile-avatar{
+.reminder-bell{
   width:56px;
   height:56px;
 
@@ -217,13 +217,13 @@
   box-shadow:4px 4px 0 #1c1b1b;
 }
 
-.profile-avatar:hover{
+.reminder-bell:hover{
   transform:translate(-2px, -2px);
 
   box-shadow:6px 6px 0 #1c1b1b;
 }
 
-.profile-avatar:active{
+.reminder-bell:active{
   transform:translate(2px, 2px);
 
   box-shadow:4px 4px 0 #1c1b1b;
