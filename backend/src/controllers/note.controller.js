@@ -9,7 +9,7 @@ const getNoteByIdAndVerifyOwner = async(noteId, userId) => {
     throw new ApiError(400, "Note ID is required")
   }
 
-  const note = await Note.findById(noteId);
+  const note = await Note.findById(noteId).populate("tags");
 
   if(!note){
     throw new ApiError(404, "Note not found")
@@ -47,10 +47,12 @@ const createNote = asyncHandler(async(req, res) => {
 })
 
 const getNotes = asyncHandler(async(req, res) => {
+
   const owner = req.user._id;
 
   const notes = await Note
-    .find({owner})
+    .find({ owner })
+    .populate("tags")
     .sort({
       isPinned: -1,
       updatedAt: -1
@@ -59,9 +61,13 @@ const getNotes = asyncHandler(async(req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, notes, "Notes Successfully Fetched!!")
-    )
-})
+      new ApiResponse(
+        200,
+        notes,
+        "Notes Successfully Fetched!!"
+      )
+    );
+});
 
 const getNoteById = asyncHandler(async(req, res) => {
 
