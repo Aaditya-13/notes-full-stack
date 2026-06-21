@@ -23,6 +23,34 @@ const noteSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true
+    },
+
+    isTrashed: {
+      type: Boolean,
+      default: false
+    },
+
+    isArchived: {
+      type: Boolean,
+      default: false
+    },
+
+    tags: {
+      type: [
+        {
+          name: {
+            type: String,
+            lowercase: true,
+            trim: true
+          },
+
+          color: {
+            type: String,
+            default: "#7c3aed"
+          }
+        }
+      ],
+      default: []
     }
   },
   {
