@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer components {
+
+  .auth-page {
+    @apply
+      min-h-screen
+      flex
+      items-center
+      justify-center
+      relative
+      overflow-hidden
+      bg-[#fcf9f8]
+      text-[#1c1b1b]
+      p-4
+      md:p-12;
+  }
+
+  .auth-card {
+    @apply
+      w-full
+      max-w-120
+      bg-white
+      border-[3px]
+      border-[#1c1b1b]
+      rounded-md
+      p-6
+      md:p-10;
+  }
+
+  .auth-header {
+    @apply
+      text-center
+      mb-10;
+  }
+
+  .auth-title {
+    @apply
+      text-5xl
+      font-extrabold
+      uppercase
+      tracking-tighter
+      mb-2;
+  }
+
+  .auth-subtitle {
+    @apply
+      text-gray-600;
+  }
+
+  .form-group {
+    @apply
+      flex
+      flex-col
+      gap-1;
+  }
+
+  .input-label {
+    @apply
+      text-sm
+      font-semibold
+      uppercase;
+  }
+
+  .input-field {
+    @apply
+      w-full
+      border-2
+      border-[#1c1b1b]
+      rounded-md
+      p-3
+      bg-white
+      transition-colors
+      focus:outline-none;
+  }
+
+  .primary-button {
+    @apply
+      w-full
+      bg-violet-500
+      text-white
+      border-2
+      border-[#1c1b1b]
+      rounded-md
+      p-3
+      font-semibold
+      uppercase
+      cursor-pointer
+      transition-all;
+  }
+  
+  .forgot-btn{
+    @apply
+      text-sm 
+      text-violet-600
+      cursor-pointer;
+  }
+
+  .register-user{
+    @apply
+      mt-6 
+      text-center;
+  }
+
+  .password-field{
+    @apply
+      flex 
+      justify-between;
+  }
+
+  .auth-link {
+    @apply
+      text-violet-600
+      font-semibold
+      ml-1
+      underline;
+  }
+}

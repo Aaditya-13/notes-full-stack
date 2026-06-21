@@ -1,0 +1,24 @@
+.brutal-shadow {
+  box-shadow: 4px 4px 0px #1c1b1b;
+}
+
+.brutal-shadow-lg {
+  box-shadow: 8px 8px 0px #1c1b1b;
+}
+
+.brutal-shadow-hover:hover {
+  box-shadow: 6px 6px 0px #1c1b1b;
+  transform: translate(-2px, -2px);
+}
+
+.brutal-shadow-active:active {
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
+
+.bg-pattern {
+  background-image:
+    radial-gradient(#cbc3d7 1px, transparent 1px);
+
+  background-size: 24px 24px;
+}
