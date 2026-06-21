@@ -10,10 +10,10 @@ const loginUser = async (data) => {
 }
 
 
-const registerUser = async (data) => {
+const registerUser = async (formData) => {
   const response = await api.post(
     "users/register",
-    data
+    formData
   );
 
   return response.data

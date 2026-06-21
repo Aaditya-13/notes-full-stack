@@ -2,117 +2,271 @@
 
 @layer components {
 
+  .avatar-upload {
+    @apply w-full cursor-pointer border-2 border-[#1c1b1b] rounded-md p-3 bg-white flex justify-center items-center font-semibold transition-all;
+  }
+
+  .avatar-upload:hover {
+    transform: translate(-2px, -2px);
+  }
+
+  .register-user {
+    @apply mt-6 text-center;
+  }
+
+  .password-field {
+    @apply flex justify-between items-center;
+  }
+
+  .forgot-btn {
+    @apply text-sm text-violet-600 font-medium;
+  }
+
   .auth-page {
-    @apply
-      min-h-screen
-      flex
-      items-center
-      justify-center
-      relative
-      overflow-hidden
-      bg-[#fcf9f8]
-      text-[#1c1b1b]
-      p-4
-      md:p-12;
+    @apply min-h-screen flex items-center justify-center relative overflow-hidden bg-[#fcf9f8] text-[#1c1b1b] p-4 md:p-12;
   }
 
   .auth-card {
-    @apply
-      w-full
-      max-w-120
-      bg-white
-      border-[3px]
-      border-[#1c1b1b]
-      rounded-md
-      p-6
-      md:p-10;
+    @apply w-full max-w-120 bg-white border-[3px] border-[#1c1b1b] rounded-md p-6 md:p-10;
   }
 
   .auth-header {
-    @apply
-      text-center
-      mb-10;
+    @apply text-center mb-10;
   }
 
   .auth-title {
-    @apply
-      text-5xl
-      font-extrabold
-      uppercase
-      tracking-tighter
-      mb-2;
+    @apply text-5xl font-extrabold uppercase tracking-tighter mb-2;
   }
 
   .auth-subtitle {
-    @apply
-      text-gray-600;
+    @apply text-gray-600;
   }
 
   .form-group {
-    @apply
-      flex
-      flex-col
-      gap-1;
+    @apply flex flex-col gap-1;
   }
 
   .input-label {
-    @apply
-      text-sm
-      font-semibold
-      uppercase;
+    @apply text-sm font-semibold uppercase;
   }
 
   .input-field {
-    @apply
-      w-full
-      border-2
-      border-[#1c1b1b]
-      rounded-md
-      p-3
-      bg-white
-      transition-colors
-      focus:outline-none;
+    @apply w-full border-2 border-[#1c1b1b] rounded-md p-3 bg-white transition-colors focus:outline-none;
   }
 
   .primary-button {
-    @apply
-      w-full
-      bg-violet-500
-      text-white
-      border-2
-      border-[#1c1b1b]
-      rounded-md
-      p-3
-      font-semibold
-      uppercase
-      cursor-pointer
-      transition-all;
-  }
-  
-  .forgot-btn{
-    @apply
-      text-sm 
-      text-violet-600
-      cursor-pointer;
+    @apply w-full bg-violet-500 text-white border-2 border-[#1c1b1b] rounded-md p-3 font-semibold uppercase cursor-pointer transition-all;
   }
 
-  .register-user{
-    @apply
-      mt-6 
-      text-center;
+  .forgot-btn {
+    @apply text-sm text-violet-600 cursor-pointer;
   }
 
-  .password-field{
-    @apply
-      flex 
-      justify-between;
+  .register-user {
+    @apply mt-6 text-center;
+  }
+
+  .password-field {
+    @apply flex justify-between;
   }
 
   .auth-link {
-    @apply
-      text-violet-600
-      font-semibold
-      ml-1
-      underline;
+    @apply text-violet-600 font-semibold ml-1 underline;
   }
+}
+
+
+.register-card{
+  position: relative;
+  max-width: 600px;
+}
+
+.new-badge{
+  position: absolute;
+  top: -18px;
+  right: -18px;
+
+  background: #8b5cf6;
+  color: white;
+
+  padding: 10px 18px;
+
+  font-weight: 700;
+  font-size: 0.9rem;
+
+  border: 3px solid #1c1b1b;
+
+  transform: rotate(3deg);
+
+  box-shadow: 4px 4px 0px #1c1b1b;
+}
+
+.avatar-section{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.avatar-circle{
+  width: 110px;
+  height: 110px;
+
+  border-radius: 9999px;
+
+  border: 3px solid #1c1b1b;
+
+  background: #f4dd45;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 3rem;
+  font-weight: 300;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  box-shadow: 6px 6px 0px #1c1b1b;
+
+  transition: all 0.15s ease;
+}
+
+.avatar-circle:hover{
+  transform: translate(-2px,-2px);
+  box-shadow: 8px 8px 0px #1c1b1b;
+}
+
+.avatar-circle:active{
+  transform: translate(4px,4px);
+  box-shadow: 2px 2px 0px #1c1b1b;
+}
+
+.avatar-preview{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-text{
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.username-wrapper{
+  display: flex;
+}
+
+.username-prefix{
+  width: 55px;
+
+  border: 2px solid #1c1b1b;
+  border-right: none;
+
+  background: #f2f2f2;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-weight: 600;
+}
+
+.username-input{
+  flex: 1;
+
+  border: 2px solid #1c1b1b;
+
+  padding: 12px;
+
+  outline: none;
+}
+
+.password-wrapper{
+  display: flex;
+
+  border: 2px solid #1c1b1b;
+  background: white;
+}
+
+.password-input{
+  flex: 1;
+
+  padding: 12px;
+
+  border: none;
+  outline: none;
+}
+
+.password-toggle{
+  width: 60px;
+
+  border: none;
+
+  background: white;
+
+  cursor: pointer;
+
+  font-size: 1.1rem;
+}
+
+.terms-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: 8px;
+
+  font-size: 0.9rem;
+}
+
+.terms-row input{
+  width: 20px;
+  height: 20px;
+
+  accent-color: black;
+}
+
+.terms-row a{
+  font-weight: 600;
+  text-decoration: underline;
+  color: inherit;
+}
+
+.register-button{
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 16px;
+
+  background: #f4dd45;
+
+  border: 3px solid #1c1b1b;
+
+  font-size: 1.15rem;
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+}
+
+.register-user{
+  text-align: center;
+  margin-top: 32px;
+}
+
+.register-user p{
+  color: #444;
+}
+
+.register-user a{
+  margin-left: 6px;
+  font-weight: 700;
 }
