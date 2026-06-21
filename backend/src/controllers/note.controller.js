@@ -50,8 +50,23 @@ const getNotes = asyncHandler(async(req, res) => {
 
   const owner = req.user._id;
 
+  const search = req.query.search?.trim();
+
+  const query = {
+    owner,
+    isArchived: false,
+    isTrashed: false
+  };
+
+  if(search){
+    query.title = {
+      $regex: search,
+      $options: "i"
+    };
+  }
+
   const notes = await Note
-    .find({ owner })
+    .find(query)
     .populate("tags")
     .sort({
       isPinned: -1,
