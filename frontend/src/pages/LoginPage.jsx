@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/brutalism.css"
 import "../styles/components.css"
 import { useState } from "react";
 import { loginUser } from "../api/auth.js";
 
 export default function LoginPage() {
+
+  const navigate = useNavigate()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -20,14 +22,15 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("username : ", username,"\npassword : ", password);
     try {
       const response = await loginUser({
         username: username,
         password: password
       })
 
-      console.log(response);
+      if(response.success){
+        navigate("/notes")
+      }
       
     } catch (error) {
       console.log(error);
@@ -124,7 +127,7 @@ export default function LoginPage() {
               New to the workspace?
 
               <Link
-                to="users/register"
+                to="/users/register"
                 className="auth-link"
               >
                 Register an account
