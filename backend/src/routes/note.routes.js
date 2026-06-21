@@ -22,8 +22,8 @@ router.route("/:id/archive").patch(archiveNote)
 
 router.route("/:id/trash").patch(trashNote)
 
-router.route("/:id/add-tag").patch(addTagToNote);
+router.route("/:noteId/add-tag").patch(addTagToNote);
 
-router.route("/:id/remove-tag").patch(removeTagFromNote);
+router.route("/:noteId/remove-tag").patch(removeTagFromNote);
 
 export default router
