@@ -38,20 +38,13 @@ const noteSchema = new Schema(
     tags: {
       type: [
         {
-          name: {
-            type: String,
-            lowercase: true,
-            trim: true
-          },
-
-          color: {
-            type: String,
-            default: "#7c3aed"
-          }
+          type: Schema.Types.ObjectId,
+          ref: "Tag"
         }
       ],
       default: []
     }
+
   },
   {
     timestamps: true
