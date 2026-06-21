@@ -210,5 +210,7 @@ export {
   getNoteById,
   deleteNote,
   pinNote,
-  updateNote
+  updateNote,
+  archiveNote,
+  trashNote
 }
