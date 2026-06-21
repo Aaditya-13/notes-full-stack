@@ -23,10 +23,14 @@ import userRouter from "./routes/user.routes.js"
 
 import noteRouter from "./routes/note.routes.js"
 
+import tagRouter from "./routes/tag.routes.js";
+
 // routes declaration 
 app.use("/api/v1/users", userRouter)
 
 app.use("/api/v1/notes", noteRouter)
+
+app.use("/api/v1/tags", tagRouter);
 
 
 export {app}
