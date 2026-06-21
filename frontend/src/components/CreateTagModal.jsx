@@ -1,41 +1,108 @@
 import { useState } from "react";
-import "./modals.css";
+import "./CreateTagModal.css";
 
-export default function CreateTagModal({onClose}) {
+function CreateTagModal({ onClose }) {
 
-  const [name,setName] = useState("");
-  const [color,setColor] = useState("#7c3aed");
+  const [name, setName] = useState("");
+  const [color, setColor] = useState("#7c3aed");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    console.log({
+      name,
+      color
+    });
+  };
 
   return (
     <div className="modal-backdrop">
 
-      <div className="modal-card">
+      <div className="tag-modal">
 
-        <div className="modal-header">
-          <h2>Create Tag</h2>
-          <button onClick={onClose}>✕</button>
+        <div className="tag-modal-header">
+
+          <div>
+
+            <h2 className="tag-modal-title">
+              Create Tag
+            </h2>
+
+            <p className="tag-modal-subtitle">
+              Organize your notes with reusable tags.
+            </p>
+
+          </div>
+
+          <button
+            className="tag-close-btn"
+            onClick={onClose}
+          >
+            ×
+          </button>
+
         </div>
 
-        <input
-          className="modal-input"
-          placeholder="React"
-          value={name}
-          onChange={(e)=>setName(e.target.value)}
-        />
+        <form onSubmit={handleSubmit}>
 
-        <input
-          type="color"
-          value={color}
-          onChange={(e)=>setColor(e.target.value)}
-          className="color-picker"
-        />
+          <div className="tag-field">
 
-        <button className="primary-modal-btn">
-          Create Tag
-        </button>
+            <label className="tag-label">
+              Tag Name
+            </label>
+
+            <input
+              className="tag-input"
+              placeholder="Ex: React"
+              value={name}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
+            />
+
+          </div>
+
+          <div className="tag-field">
+
+            <label className="tag-label">
+              Tag Color
+            </label>
+
+            <div className="color-row">
+
+              <input
+                type="color"
+                value={color}
+                onChange={(e) =>
+                  setColor(e.target.value)
+                }
+                className="tag-color"
+              />
+
+              <div
+                className="color-preview"
+                style={{
+                  backgroundColor: color
+                }}
+              />
+
+              <button
+                type="submit"
+                className="tag-submit"
+              >
+                Create Tag
+              </button>
+
+            </div>
+
+          </div>
+
+        </form>
 
       </div>
 
     </div>
   );
 }
+
+export default CreateTagModal;
