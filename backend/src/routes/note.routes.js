@@ -1,6 +1,17 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { archiveNote, createNote, deleteNote, getNoteById, getNotes, pinNote, trashNote, updateNote } from "../controllers/note.controller.js";
+import {
+  createNote,
+  getNotes,
+  getNoteById,
+  deleteNote,
+  pinNote,
+  updateNote,
+  archiveNote,
+  trashNote,
+  addTagToNote,
+  removeTagFromNote
+} from "../controllers/note.controller.js";
 
 const router = Router();
 
