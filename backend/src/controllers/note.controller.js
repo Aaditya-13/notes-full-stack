@@ -203,6 +203,73 @@ const trashNote = asyncHandler( async (req, res) => {
 })
 
 
+const addTagToNote = asyncHandler(async(req, res) => {
+
+  const note = await getNoteByIdAndVerifyOwner(
+    req.params.noteId,
+    req.user._id
+  );
+
+  const tag = await Tag.findOne({
+    _id: req.body.tagId,
+    owner: req.user._id
+  });
+
+  if(!tag){
+    throw new ApiError(
+      404,
+      "Tag not found"
+    );
+  }
+
+  const alreadyExists = note.tags.some(
+    tagId =>
+      tagId.toString() === tag._id.toString()
+  );
+
+  if(alreadyExists){
+    throw new ApiError(
+      409,
+      "Tag already added"
+    );
+  }
+
+  note.tags.push(tag._id);
+
+  await note.save();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      note,
+      "Tag Added Successfully"
+    )
+  );
+});
+
+const removeTagFromNote = asyncHandler(async(req, res) => {
+
+  const note = await getNoteByIdAndVerifyOwner(
+    req.params.noteId,
+    req.user._id
+  );
+
+  note.tags = note.tags.filter(
+    tagId =>
+      tagId.toString() !==
+      req.body.tagId
+  );
+
+  await note.save();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      note,
+      "Tag Removed Successfully"
+    )
+  );
+});
 
 export {
   createNote,
@@ -212,5 +279,7 @@ export {
   pinNote,
   updateNote,
   archiveNote,
-  trashNote
+  trashNote,
+  addTagToNote,
+  removeTagFromNote
 }
