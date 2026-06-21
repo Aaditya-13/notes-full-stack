@@ -129,6 +129,79 @@ const updateNote = asyncHandler(async(req, res) => {
 
 })
 
+const archiveNote = asyncHandler( async (req, res) => {
+  const note = await getNoteByIdAndVerifyOwner(req.params.id, req.user._id);
+
+  note.isArchived = !note.isArchived
+
+  if(note.isTrashed){
+   note.isTrashed = false;
+  }
+
+  let message;
+
+  if (note.isArchived) {
+
+    message = "Note Archived Successfully";
+
+    if (note.isPinned) {
+      note.isPinned = false;
+      message = "Note Archived & Unpinned Successfully";
+    }
+
+  } else {
+
+    message = "Note Restored From Archive Successfully";
+
+  }
+
+  await note.save();
+
+
+  return res 
+    .status(200)
+    .json(
+      new ApiResponse(200, note, message)
+    )
+})
+
+
+const trashNote = asyncHandler( async (req, res) => {
+
+  const note = await getNoteByIdAndVerifyOwner(req.params.id, req.user._id);
+
+  note.isTrashed = !note.isTrashed
+
+  if(note.isArchived){
+   note.isArchived = false;
+  }
+
+  let message;
+
+  if (note.isTrashed) {
+
+    message = "Note Trashed Successfully";
+
+    if (note.isPinned) {
+      note.isPinned = false;
+      message = "Note Trashed & Unpinned Successfully";
+    }
+
+  } 
+  else {
+    message = "Note Restored From Trash Successfully";
+  }
+
+  await note.save();
+
+
+  return res 
+    .status(200)
+    .json(
+      new ApiResponse(200, note, message)
+    )
+})
+
 
 
 export {
