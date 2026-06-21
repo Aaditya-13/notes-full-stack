@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { createNote, deleteNote, getNoteById, getNotes, pinNote, updateNote } from "../controllers/note.controller.js";
+import { archiveNote, createNote, deleteNote, getNoteById, getNotes, pinNote, trashNote, updateNote } from "../controllers/note.controller.js";
 
 const router = Router();
 
@@ -17,5 +17,13 @@ router.route("/:id").delete(deleteNote)
 router.route("/:id").patch(updateNote)
 
 router.route("/:id/pin").patch(pinNote)
+
+router.route("/:id/archive").patch(archiveNote)
+
+router.route("/:id/trash").patch(trashNote)
+
+router.route("/:id/add-tag").patch(addTagToNote);
+
+router.route("/:id/remove-tag").patch(removeTagFromNote);
 
 export default router
