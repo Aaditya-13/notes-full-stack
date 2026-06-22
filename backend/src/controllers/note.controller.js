@@ -27,6 +27,10 @@ const createNote = asyncHandler(async(req, res) => {
 
   const title = req.body.title?.trim();
   const content = req.body.content?.trim();
+  const tags = req.body.tags
+  const isPinned = req.body.isPinned
+  const isArchived = req.body.isArchived
+  const isTrashed = req.body.isTrashed
 
   if(!content){
     throw new ApiError(400, "Content Field is required!!")
@@ -36,6 +40,10 @@ const createNote = asyncHandler(async(req, res) => {
   const note = await Note.create({
     title,
     content,
+    isPinned,
+    isTrashed,
+    isArchived,
+    tags,
     owner: user._id
   })
 
@@ -130,6 +138,10 @@ const pinNote = asyncHandler(async(req, res) => {
 const updateNote = asyncHandler(async(req, res) => {
   const title = req.body.title?.trim();
   const content = req.body.content?.trim();
+  const tags = req.body.tags
+  const isPinned = req.body.isPinned
+  const isArchived = req.body.isArchived
+  const isTrashed = req.body.isTrashed
 
   if(!title && !content ){
     throw new ApiError(400, "At Least One Field is required!!")
@@ -139,6 +151,13 @@ const updateNote = asyncHandler(async(req, res) => {
 
   title && (note.title = title)
   content && (note.content = content);
+
+  if (Array.isArray(tags)) {
+    note.tags = tags;
+  }
+  note.isArchived = isArchived;
+  note.isPinned = isPinned;
+  note.isTrashed = isTrashed;
 
   await note.save()
 
