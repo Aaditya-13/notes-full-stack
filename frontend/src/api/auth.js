@@ -19,7 +19,21 @@ const registerUser = async (formData) => {
   return response.data
 }
 
+
+const getCurrentUser = async () => {
+  const response = await api.get("/users/current-user");
+  return response.data;
+};
+
+const logoutUser = async () => {
+  const response = await api.post("/users/logout");
+  return response.data;
+};
+
+
 export {
   loginUser,
-  registerUser
+  registerUser,
+  getCurrentUser,
+  logoutUser
 }
