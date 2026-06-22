@@ -29,6 +29,7 @@ export default function LoginPage() {
       })
 
       if(response.success){
+        console.log("Login is successful");
         navigate("/notes")
       }
       

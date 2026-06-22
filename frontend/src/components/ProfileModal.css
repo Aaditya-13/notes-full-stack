@@ -98,7 +98,7 @@
 
   border:4px solid #1f1f1f;
 
-  box-shadow:5px 5px 0 #1f1f1f;
+  /* box-shadow:5px 5px 0 #1f1f1f; */
 
   margin-bottom:1rem;
 }
@@ -120,7 +120,7 @@
   font-size:3rem;
   font-weight:900;
 
-  box-shadow:5px 5px 0 #1f1f1f;
+  /* box-shadow:5px 5px 0 #1f1f1f; */
 
   margin-bottom:1rem;
 }
@@ -331,7 +331,7 @@
 }
 
 .password-input-wrapper input{
-  width:87%;
+  width:95%;
   padding-right:3.5rem;
 }
 
