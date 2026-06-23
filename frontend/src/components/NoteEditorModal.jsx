@@ -7,6 +7,8 @@ import { Markdown } from "tiptap-markdown";
 
 import { createNote, updateNote } from "../api/notes.js";
 
+import { formatFullDate, getLastUpdatedLabel } from "../utility/formatDate.js";
+
 import {
   Bold,
   Italic,
@@ -17,7 +19,8 @@ import {
   //CheckSquare,
   Save,
   X,
-  Tag,
+  Undo2,
+  Redo2,
   Pin,
   Archive,
   Trash2
@@ -28,8 +31,14 @@ import "./NoteEditorModal.css";
 function NoteEditorModal({
   note = null,
   tags = [],
-  onClose
+  onClose,
+  onSave
 }) {
+
+  const [showTags, setShowTags] = useState(false);
+
+  const [showDates, setShowDates] = useState(false);
+
   //usestate for pin, archive & trash
   const [isPinned, setIsPinned] =
     useState(note?.isPinned || false);
@@ -77,7 +86,7 @@ function NoteEditorModal({
     setTitle(
       note?.title || ""
     );
-  
+
     setSelectedTags(
       note?.tags?.map(tag => tag._id) || []
     );
@@ -138,10 +147,10 @@ function NoteEditorModal({
   // click on save note button to save
   const handleSave = async () => {
 
-    if(!editor) return;
+    if (!editor) return;
 
     console.log("submit triggered!!");
-    
+
     try {
 
       const markdown = editor.storage.markdown.getMarkdown();
@@ -155,7 +164,7 @@ function NoteEditorModal({
         isTrashed
       };
 
-      if(note){
+      if (note) {
 
         await updateNote(
           note._id,
@@ -170,10 +179,11 @@ function NoteEditorModal({
 
       }
 
+      await onSave()
       onClose();
 
     }
-    catch(error){
+    catch (error) {
 
       console.log(error);
 
@@ -185,37 +195,33 @@ function NoteEditorModal({
     return null;
   }
 
-  return (
+return (
+
+  <div
+    className="editor-backdrop"
+    onClick={onClose}
+  >
 
     <div
-      className="editor-backdrop"
-      onClick={onClose}
+      className="editor-modal"
+      onClick={(e) => e.stopPropagation()}
     >
 
-      <div
-        className="editor-modal"
-        onClick={(e) =>
-          e.stopPropagation()
-        }
-      >
+      {/* TOP */}
 
-        <div className="editor-header">
+      <div className="editor-top">
 
-          <div>
+        <div className="editor-title-row">
 
-            <h2 className="editor-heading">
-              {
-                note
-                  ? "Edit Note"
-                  : "New Note"
-              }
-            </h2>
-
-            <p className="editor-description">
-              Capture ideas, plans and knowledge.
-            </p>
-
-          </div>
+          <input
+            type="text"
+            className="note-title-input"
+            placeholder="Untitled Note"
+            value={title}
+            onChange={(e) =>
+              setTitle(e.target.value)
+            }
+          />
 
           <button
             className="close-btn"
@@ -226,155 +232,121 @@ function NoteEditorModal({
 
         </div>
 
-        <input
-          type="text"
-          className="note-title-input"
-          placeholder="Untitled Note"
-          value={title}
-          onChange={(e) =>
-            setTitle(e.target.value)
+        <div className="editor-meta-row">
+
+          <div className="tag-preview-wrapper">
+
+            <button
+              className="tag-preview-btn"
+              onClick={() =>
+                setShowTags(prev => !prev)
+              }
+            >
+
+              {
+                selectedTags.length > 0
+                  ? tags
+                    .filter(tag =>
+                      selectedTags.includes(tag._id)
+                    )
+                    .slice(0, 3)
+                    .map(tag => `#${tag.name}`)
+                    .join(" ")
+                  : "+ Add Tags"
+              }
+
+            </button>
+
+            {
+              showTags && (
+
+                <div className="tag-popup">
+
+                  <div className="tag-popup-title">
+                    Tags
+                  </div>
+
+                  <div className="tag-popup-list">
+
+                    {
+                      tags.map(tag => (
+
+                        <button
+                          key={tag._id}
+                          className={`tag-pill ${
+                            selectedTags.includes(tag._id)
+                              ? "selected-tag"
+                              : ""
+                          }`}
+                          style={{
+                            backgroundColor: tag.color
+                          }}
+                          onClick={() =>
+                            toggleTag(tag._id)
+                          }
+                        >
+                          {tag.name}
+                        </button>
+
+                      ))
+                    }
+
+                  </div>
+
+                </div>
+
+              )
+            }
+
+          </div>
+
+          {
+            note && (
+
+              <div className="note-meta-container">
+
+                <button
+                  type="button"
+                  className="note-meta-btn"
+                  onClick={() =>
+                    setShowDates(prev => !prev)
+                  }
+                >
+                  {getLastUpdatedLabel(note.updatedAt)}
+                </button>
+
+                {
+                  showDates && (
+
+                    <div className="note-meta-popup">
+
+                      <p>
+                        <strong>Created:</strong>{" "}
+                        {formatFullDate(note.createdAt)}
+                      </p>
+
+                      <p>
+                        <strong>Updated:</strong>{" "}
+                        {formatFullDate(note.updatedAt)}
+                      </p>
+
+                    </div>
+
+                  )
+                }
+
+              </div>
+
+            )
           }
-        />
-
-        <div className="toolbar">
-          {/* bold */}
-          <button
-            className={`toolbar-btn ${editor.isActive("bold")
-                ? "toolbar-btn-clicked"
-                : ""
-              }`}
-            onClick={() =>
-              editor.chain().focus().toggleBold().run()
-            }
-          >
-            <Bold size={18} />
-          </button>
-
-          {/* italic */}
-          <button
-            className={`toolbar-btn ${editor.isActive("italic")
-                ? "toolbar-btn-clicked"
-                : ""
-              }`}
-            onClick={() =>
-              editor.chain().focus().toggleItalic().run()
-            }
-          >
-            <Italic size={18} />
-          </button>
-
-          {/* h1 */}
-          <button
-            className={`toolbar-btn ${editor.isActive("heading", {level : 1})
-                ? "toolbar-btn-clicked"
-                : ""
-              }`}
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            }
-          >
-            <Heading1 size={18} />
-          </button>
-
-            {/* h2 */}
-          <button
-            className={`toolbar-btn ${editor.isActive("heading", {level : 2})
-                ? "toolbar-btn-clicked"
-                : ""
-              }`}
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-          >
-            <Heading2 size={18} />
-          </button>
-
-            {/* UL */}
-          <button
-            className={`toolbar-btn ${editor.isActive("bulletList")
-                ? "toolbar-btn-clicked"
-                : ""
-              }`}
-            onClick={() =>
-              editor.chain().focus().toggleBulletList().run()
-            }
-          >
-            <List size={18} />
-          </button>
-
-            {/* OL */}
-          <button
-            className={`toolbar-btn ${editor.isActive("orderedList")
-                ? "toolbar-btn-clicked"
-                : ""
-              }`}
-            onClick={() =>
-              editor.chain().focus().toggleOrderedList().run()
-            }
-          >
-            <ListOrdered size={18} />
-          </button>
-
-            
-          {/* <button
-            className="toolbar-btn"
-          >
-            <CheckSquare size={18} />
-          </button> */}
-
-          <button
-            className={`toolbar-btn status-btn ${isPinned ? "pin-active" : ""
-              }`}
-            onClick={() => {
-
-              setIsPinned(prev => !prev);
-
-              if (isArchived || isTrashed) {
-                setIsArchived(false);
-                setIsTrashed(false);
-              }
-
-            }}
-          >
-            <Pin size={18} />
-          </button>
-
-          <button
-            className={`toolbar-btn status-btn ${isArchived ? "archive-active" : ""
-              }`}
-            onClick={() => {
-              
-
-              setIsArchived(prev => !prev);
-
-              if (!isArchived) {
-                setIsPinned(false);
-                setIsTrashed(false);
-              }
-
-            }}
-          >
-            <Archive size={18} />
-          </button>
-
-          <button
-            className={`toolbar-btn status-btn ${isTrashed ? "trash-active" : ""
-              }`}
-            onClick={() => {
-
-              setIsTrashed(prev => !prev);
-
-              if (!isTrashed) {
-                setIsPinned(false);
-                setIsArchived(false);
-              }
-
-            }}
-          >
-            <Trash2 size={18} />
-          </button>
 
         </div>
+
+      </div>
+
+      {/* EDITOR */}
+
+      <div className="editor-main">
 
         <div className="editor-wrapper">
 
@@ -385,72 +357,191 @@ function NoteEditorModal({
 
         </div>
 
-        <div className="tag-section">
+      </div>
 
-          <div className="tag-header">
+      {/* FOOTER */}
 
-            <Tag size={18} />
+      <div className="editor-footer">
 
-            <span>
-              Tags
-            </span>
+        <div className="footer-left">
 
-          </div>
-
-          <div className="tag-container">
-
-            {
-              tags.map(tag => (
-
-                <button
-                  key={tag._id}
-                  className={`tag-pill ${selectedTags.includes(tag._id)
-                      ? "selected-tag"
-                      : ""
-                    }`}
-                  style={{
-                    backgroundColor: tag.color
-                  }}
-                  onClick={() =>
-                    toggleTag(tag._id)
-                  }
-                >
-                  {tag.name}
-                </button>
-
-              ))
+          <button
+            className="toolbar-btn"
+            onClick={() =>
+              editor.chain().focus().undo().run()
             }
-
-          </div>
-
-        </div>
-
-        <div className="editor-actions">
-
-          <button
-            className="cancel-btn"
-            onClick={onClose}
           >
-            Cancel
+            <Undo2 size={18} />
           </button>
 
           <button
-            className="save-btn"
-            onClick={handleSave}
+            className="toolbar-btn"
+            onClick={() =>
+              editor.chain().focus().redo().run()
+            }
           >
+            <Redo2 size={18} />
+          </button>
 
-            <Save size={18} />
+          <button
+            className={`toolbar-btn ${
+              editor.isActive("bold")
+                ? "toolbar-btn-clicked"
+                : ""
+            }`}
+            onClick={() =>
+              editor.chain().focus().toggleBold().run()
+            }
+          >
+            <Bold size={18} />
+          </button>
 
-            Save Note
+          <button
+            className={`toolbar-btn ${
+              editor.isActive("italic")
+                ? "toolbar-btn-clicked"
+                : ""
+            }`}
+            onClick={() =>
+              editor.chain().focus().toggleItalic().run()
+            }
+          >
+            <Italic size={18} />
+          </button>
 
+          <button
+            className={`toolbar-btn ${
+              editor.isActive("heading", { level: 1 })
+                ? "toolbar-btn-clicked"
+                : ""
+            }`}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({
+                level: 1
+              }).run()
+            }
+          >
+            <Heading1 size={18} />
+          </button>
+
+          <button
+            className={`toolbar-btn ${
+              editor.isActive("heading", { level: 2 })
+                ? "toolbar-btn-clicked"
+                : ""
+            }`}
+            onClick={() =>
+              editor.chain().focus().toggleHeading({
+                level: 2
+              }).run()
+            }
+          >
+            <Heading2 size={18} />
+          </button>
+
+          <button
+            className={`toolbar-btn ${
+              editor.isActive("bulletList")
+                ? "toolbar-btn-clicked"
+                : ""
+            }`}
+            onClick={() =>
+              editor.chain().focus().toggleBulletList().run()
+            }
+          >
+            <List size={18} />
+          </button>
+
+          <button
+            className={`toolbar-btn ${
+              editor.isActive("orderedList")
+                ? "toolbar-btn-clicked"
+                : ""
+            }`}
+            onClick={() =>
+              editor.chain().focus().toggleOrderedList().run()
+            }
+          >
+            <ListOrdered size={18} />
+          </button>
+
+          <button
+            className={`toolbar-btn ${
+              isPinned
+                ? "pin-active"
+                : ""
+            }`}
+            onClick={() => {
+
+              setIsPinned(prev => !prev);
+
+              setIsArchived(false);
+
+              setIsTrashed(false);
+
+            }}
+          >
+            <Pin size={18} />
+          </button>
+
+          <button
+            className={`toolbar-btn ${
+              isArchived
+                ? "archive-active"
+                : ""
+            }`}
+            onClick={() => {
+
+              setIsArchived(prev => !prev);
+
+              setIsPinned(false);
+
+              setIsTrashed(false);
+
+            }}
+          >
+            <Archive size={18} />
+          </button>
+
+          <button
+            className={`toolbar-btn ${
+              isTrashed
+                ? "trash-active"
+                : ""
+            }`}
+            onClick={() => {
+
+              setIsTrashed(prev => !prev);
+
+              setIsPinned(false);
+
+              setIsArchived(false);
+
+            }}
+          >
+            <Trash2 size={18} />
           </button>
 
         </div>
+
+        <button
+          className="save-btn"
+          onClick={handleSave}
+        >
+
+          <Save size={18} />
+
+          Save
+
+        </button>
 
       </div>
 
     </div>
-  );
+
+  </div>
+
+);
 }
 
 export default NoteEditorModal;
