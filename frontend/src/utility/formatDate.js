@@ -25,21 +25,21 @@ export const getLastUpdatedLabel = (dateString) => {
     );
 
   if(diffSeconds < 60){
-    return `Updated ${diffSeconds}s ago`;
+    return `${diffSeconds}s ago`;
   }
 
   const diffMinutes =
     Math.floor(diffSeconds / 60);
 
   if(diffMinutes < 60){
-    return `Updated ${diffMinutes}m ago`;
+    return `${diffMinutes}m ago`;
   }
 
   const diffHours =
     Math.floor(diffMinutes / 60);
 
   if(diffHours < 24){
-    return `Updated ${diffHours}h ago`;
+    return `${diffHours}h ago`;
   }
 
   return updated.toLocaleDateString(
