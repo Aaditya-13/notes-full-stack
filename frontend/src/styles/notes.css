@@ -6,6 +6,10 @@
   min-height:100vh;
   display:flex;
 
+  min-width:800px;
+  /* overflow-x:auto; */
+
+
   background:#f8f4ec;
   color:#1c1b1b;
 }
@@ -36,6 +40,8 @@
   display:flex;
   align-items:center;
   gap:1rem;
+
+  max-width: 600px;
 
   padding:1rem;
 
@@ -92,6 +98,8 @@
 .create-note-btn{
   width:100%;
 
+  max-width: 600px;
+
   margin-top:2rem;
 
   padding:1rem;
@@ -133,6 +141,10 @@
   text-align:left;
 
   padding:1rem;
+
+  min-width: 240px;
+
+  max-width: 300px;
 
   background:white;
 
@@ -196,7 +208,155 @@
   box-shadow:4px 4px 0 #1c1b1b;
 }
 
-.reminder-bell{
+/* ===================================
+   TOPBAR TAG FILTER
+=================================== */
+
+.header-tags{
+  position:relative;
+
+  display:flex;
+  align-items:center;
+}
+
+.tag-filter-btn{
+  width:58px;
+  height:58px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  border:3px solid #1c1b1b;
+
+  background:#fffdf8;
+
+  cursor:pointer;
+
+  box-shadow:5px 5px 0 #1c1b1b;
+
+  transition:.15s;
+}
+
+.tag-filter-btn svg{
+  width:22px;
+  height:22px;
+}
+
+.tag-filter-btn:hover{
+  transform:translate(-2px,-2px);
+
+  box-shadow:7px 7px 0 #1c1b1b;
+}
+
+.tag-filter-btn:active{
+  transform:translate(3px,3px);
+
+  box-shadow:2px 2px 0 #1c1b1b;
+}
+
+
+/* ===================================
+   TAG FILTER POPUP
+=================================== */
+
+.tag-filter-popup{
+  position:absolute;
+
+  top:75px;
+  right:0;
+
+  width:240px;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:.75rem;
+
+  padding:1rem;
+
+  background:#fffdf8;
+
+  border:4px solid #1c1b1b;
+
+  box-shadow:8px 8px 0 #1c1b1b;
+
+  z-index:50;
+}
+
+.tag-filter-popup button{
+  height:50px;
+
+  border:3px solid #1c1b1b;
+
+  background:white;
+
+  font-size:1rem;
+  font-weight:800;
+
+  cursor:pointer;
+
+  transition:.15s;
+}
+
+.tag-filter-popup button:hover{
+  background:#f4dd45;
+}
+
+.tag-filter-popup button:active{
+  transform:translate(2px,2px);
+}
+
+
+/* ===================================
+   ACTIVE FILTER CHIP
+=================================== */
+
+.active-tag-filter{
+  display:flex;
+  align-items:center;
+
+  gap:.75rem;
+
+  margin-top:1rem;
+
+  width:fit-content;
+
+  padding:.75rem 1rem;
+
+  background:#7c3aed;
+
+  color:white;
+
+  border:3px solid #1c1b1b;
+
+  box-shadow:4px 4px 0 #1c1b1b;
+
+  font-size:.95rem;
+  font-weight:800;
+}
+
+.active-tag-filter button{
+  width:28px;
+  height:28px;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  border:none;
+
+  background:white;
+
+  color:#1c1b1b;
+
+  font-size:1rem;
+  font-weight:900;
+
+  cursor:pointer;
+}
+
+/* .header-tags{
   width:56px;
   height:56px;
 
@@ -217,17 +377,17 @@
   box-shadow:4px 4px 0 #1c1b1b;
 }
 
-.reminder-bell:hover{
+.header-tags:hover{
   transform:translate(-2px, -2px);
 
   box-shadow:6px 6px 0 #1c1b1b;
 }
 
-.reminder-bell:active{
+.header-tags:active{
   transform:translate(2px, 2px);
 
   box-shadow:4px 4px 0 #1c1b1b;
-}
+} */
 
 /* =========================
    HERO
@@ -332,6 +492,8 @@
 
   border:3px solid #1c1b1b;
 
+  margin-right: 30px;
+
   font-weight:600;
 
   transition:.15s;
@@ -364,7 +526,7 @@
   display:grid;
 
   grid-template-columns:
-    repeat(auto-fit,minmax(280px,1fr));
+    repeat(auto-fit,minmax(280px,300px));
 
   gap:1.5rem;
 }
@@ -373,7 +535,7 @@
   display:grid;
 
   grid-template-columns:
-    repeat(auto-fit,minmax(260px,1fr));
+    repeat(auto-fit,minmax(260px,280px));
 
   gap:1.5rem;
 }
@@ -418,7 +580,7 @@
   margin-bottom:1rem;
 }
 
-.note-tag{
+/* .note-tag{
   font-size:.8rem;
 
   padding:.3rem .6rem;
@@ -428,7 +590,7 @@
   background:white;
 
   font-weight:700;
-}
+} */
 
 .note-date{
   font-size:.8rem;

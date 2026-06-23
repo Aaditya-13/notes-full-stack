@@ -1,256 +1,375 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "../api/auth.js";
+import { getNotes } from "../api/notes.js";
 import "../styles/notes.css";
+import LoadingSkeleton from "../components/LoadingSkeleton.jsx";
+import { getTags } from "../api/tags";
+import getGreeting from "../utility/greetings.js";
+import { Tags } from "lucide-react";
+
+import CreateTagModal from "../components/CreateTagModal.jsx";
+// pass onClose
+import NoteEditorModal from "../components/NoteEditorModal.jsx";
+// pass note, tags, onClose
+import ProfileModal from "../components/ProfileModal.jsx";
+// pass user and onClose
 
 export default function NotesPage() {
+    // set tags
+    const [tags, setTags] = useState([]);
 
-  // fetch total count of notes associated with userId
-  let totalPinned = 0;
+    // sidebar filter
+    const [activeTab, setActiveTab] = useState("all");
 
-  // fetch total pinned count of notes associated with userId
-  let totalNotes = 0;
+    // user
+    const [user, setUser] = useState(null);
 
-  // for sidebar
-  const [activeTab, setActiveTab] = useState("all");
+    // notes
+    const [notes, setNotes] = useState([]);
 
-  // top 3 pinned notes
-  const pinnedNotes = [];
+    // search
+    const [search, setSearch] = useState("");
 
-  // top 4 recent notes (pinned can also be included)
-  const recentNotes = [];
+    // loading
+    const [loading, setLoading] = useState(true);
 
-  return (
-    <div className="notes-page">
+    // modals
+    const [showProfile, setShowProfile] = useState(false);
 
-      {/* SIDEBAR */}
+    const [showTagModal, setShowTagModal] = useState(false);
 
-      <aside className="sidebar">
+    const [showEditor, setShowEditor] = useState(false);
 
-        <div className="workspace-card">
+    // selected note
+    const [selectedNote, setSelectedNote] = useState(null);
 
-          <div className="workspace-avatar">
-            👨‍💻
-          </div>
+    // tag filter
+    const [selectedTag, setSelectedTag] = useState(null);
 
-          <div>
-            <h3 className="workspace-title">
-              Creator Workspace
-            </h3>
+    const [showTagFilter, setShowTagFilter] = useState(false);
 
-            <p className="workspace-subtitle">
-              Premium Member
-            </p>
-          </div>
+    // fetch notes
+    const fetchNotesData = async (searchText = "") => {
+        try {
+            const response = await getNotes(searchText);
 
-        </div>
+            setNotes(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-        <button className="create-note-btn">
-          + Create New Tag
-        </button>
+    // initial page load
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const userResponse = await getCurrentUser();
 
-        <nav className="sidebar-nav">
+                setUser(userResponse.data);
 
-          <button
-            className={`sidebar-link ${
-              activeTab === "all"
-                ? "active-sidebar-link"
-                : ""
-            }`}
-            onClick={() => setActiveTab("all")}
-          >
-            All Notes
-          </button>
+                await fetchNotesData();
 
-          <button
-            className={`sidebar-link ${
-              activeTab === "pinned"
-                ? "active-sidebar-link"
-                : ""
-            }`}
-            onClick={() => setActiveTab("pinned")}
-          >
-            Pinned
-          </button>
+                const tagsResponse = await getTags();
 
-          <button
-            className={`sidebar-link ${
-              activeTab === "trash"
-                ? "active-sidebar-link"
-                : ""
-            }`}
-            onClick={() => setActiveTab("trash")}
-          >
-            Trash
-          </button>
+                setTags(tagsResponse.data);
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-          <button
-            className={`sidebar-link ${
-              activeTab === "archived"
-                ? "active-sidebar-link"
-                : ""
-            }`}
-            onClick={() => setActiveTab("archived")}
-          >
-            Archived
-          </button>
+        fetchData();
+    }, []);
 
-        </nav>
+    // search notes
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchNotesData(search);
+        }, 500);
 
-      </aside>
+        return () => clearTimeout(timer);
+    }, [search]);
 
-      {/* MAIN */}
 
-      <main className="notes-main">
+    // filtered notes array
+    let filteredNotes = [...notes];
 
-        {/* TOPBAR */}
+    // sidebar filter
+    if (activeTab === "pinned") {
+        filteredNotes = filteredNotes.filter((note) => note.isPinned);
+    }
 
-        <header className="topbar">
+    if (activeTab === "archived") {
+        filteredNotes = filteredNotes.filter((note) => note.isArchived);       
+    }
 
-          <h1 className="logo">
-            INK & IRON
-          </h1>
+    if (activeTab === "trash") {
+        filteredNotes = filteredNotes.filter((note) => note.isTrashed);
+    }
 
-          <div className="search-container">
+    // tag filter
+    if (selectedTag) {
+        filteredNotes = filteredNotes.filter((note) => note.tags?.some((tag) => tag._id === selectedTag));
+    }
 
-            <input
-              type="text"
-              placeholder="Search notes..."
-              className="search-input"
-            />
+    // counts
+    const totalNotes = filteredNotes.length;
 
-          </div>
+    const totalPinned = filteredNotes.filter((note) => note.isPinned).length;
 
-          <div className="reminder-bell">
-            🔔
-          </div>
+    // pinned notes section
+    const pinnedNotes = filteredNotes.filter((note) => note.isPinned);
 
-        </header>
+    // recent notes section
+    const recentNotes = [...filteredNotes].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-        {/* HERO */}
+    const isPinnedView = activeTab === "pinned";
 
-        <section className="hero-section">
+    const isArchivedView = activeTab === "archived";
 
-          <div>
+    const isTrashView = activeTab === "trash";
 
-            <h1 className="hero-title">
-              Good morning, Creator.
-            </h1>
+    const isDefaultView = activeTab === "all" && !selectedTag;
 
-            <p className="hero-subtitle">
-              You have {totalPinned} notes pinned and {totalNotes} total.
-            </p>
+    if (loading) {
+        return <LoadingSkeleton />;
+    }
+    return (
+        <div className="notes-page">
+            {/* SIDEBAR */}
 
-          </div>
+            <aside className="sidebar">
+                <div className="workspace-card" onClick={() => setShowProfile(true)}>
+                    <div className="workspace-avatar">👨‍💻</div>
 
-          <div className="hero-actions">
+                    <div>
+                        <h3 className="workspace-title">{user.username} Workspace</h3>
 
-            <button className="new-note-btn">
-              New Blank Note
-            </button>
-
-          </div>
-
-        </section>
-
-        {/* PINNED */}
-
-        <section className="notes-section">
-
-          <h2 className="section-title">
-            Pinned Focus 📌 
-          </h2>
-
-          <div className="pinned-grid">
-
-            {pinnedNotes.map((note) => (
-
-              <div
-                key={note.id}
-                className={`note-card ${note.color}`}
-              >
-
-                <div className="card-top">
-
-                  <span className="note-tag">
-                    {note.tag}
-                  </span>
-
-                  <span className="note-date">
-                    {note.date}
-                  </span>
-
+                        <p className="workspace-subtitle">{user.email}</p>
+                    </div>
                 </div>
 
-                <h3 className="note-title">
-                  {note.title}
-                </h3>
+                <button className="create-note-btn" onClick={() => setShowTagModal(true)}>
+                    + Create New Tag
+                </button>
 
-                <p className="note-content">
-                  {note.content}
-                </p>
+                {/* side bar filters */}
 
-              </div>
+                <nav className="sidebar-nav">
+                    <button
+                        className={`sidebar-link ${activeTab === "all" ? "active-sidebar-link" : ""}`}
+                        onClick={() => setActiveTab("all")}
+                    >
+                        All Notes
+                    </button>
 
-            ))}
+                    <button
+                        className={`sidebar-link ${activeTab === "pinned" ? "active-sidebar-link" : ""}`}
+                        onClick={() => setActiveTab("pinned")}
+                    >
+                        Pinned
+                    </button>
 
-          </div>
+                    <button
+                        className={`sidebar-link ${activeTab === "trash" ? "active-sidebar-link" : ""}`}
+                        onClick={() => setActiveTab("trash")}
+                    >
+                        Trash
+                    </button>
 
-        </section>
+                    <button
+                        className={`sidebar-link ${activeTab === "archived" ? "active-sidebar-link" : ""}`}
+                        onClick={() => setActiveTab("archived")}
+                    >
+                        Archived
+                    </button>
+                </nav>
+            </aside>
 
-        {/* RECENT */}
+            {/* MAIN */}
 
-        <section className="notes-section">
+            <main className="notes-main">
+                {/* TOPBAR */}
 
-          <div className="recent-header">
+                <header className="topbar">
+                    <h1 className="logo">INK & IRON</h1>
 
-            <h2 className="section-title">
-              Recent Notes
-            </h2>
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Search notes..."
+                            className="search-input"
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                            }}
+                        />
+                    </div>
 
-            <div className="view-actions">
+                    {selectedTag && (
+                        <div className="active-tag-filter">
+                            {tags.find((tag) => tag._id === selectedTag)?.name}
 
-              <button className="filter-btn">
-                Filter
-              </button>
+                            <button onClick={() => setSelectedTag(null)}>×</button>
+                        </div>
+                    )}
 
-              <button className="grid-btn">
-                ⊞
-              </button>
+                    <div className="header-tags">
+                        <button className="tag-filter-btn" onClick={() => setShowTagFilter((prev) => !prev)}>
+                            <Tags />
+                        </button>
 
-            </div>
+                        {showTagFilter && (
+                            <div className="tag-filter-popup">
+                                <button onClick={() => setSelectedTag(null)}>All Notes</button>
 
-          </div>
+                                {tags.map((tag) => (
+                                    <button key={tag._id} onClick={() => setSelectedTag(tag._id)}>
+                                        # {tag.name}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </header>
 
-          <div className="recent-grid">
+                {/* HERO */}
 
-            {recentNotes.map((note) => (
+                <section className="hero-section">
+                    <div>
+                        <h1 className="hero-title">
+                            {getGreeting()}, {`${user.fullName ? user.fullName : user.username}`}.
+                        </h1>
 
-              <div
-                key={note.id}
-                className="recent-note-card"
-              >
+                        <p className="hero-subtitle">
+                            You have {totalPinned} notes pinned and {totalNotes} total.
+                        </p>
+                    </div>
 
-                <h3 className="note-title">
-                  {note.title}
-                </h3>
+                    <div className="hero-actions">
+                        <button
+                            className="new-note-btn"
+                            onClick={() => {
+                                setSelectedNote(null);
 
-                <p className="note-content">
-                  {note.content}
-                </p>
+                                setShowEditor(true);
+                            }}
+                        >
+                            New Blank Note
+                        </button>
+                    </div>
+                </section>
 
-                <span className="note-date">
-                  {note.date}
-                </span>
+                {/* PINNED */}
 
-              </div>
+                {isDefaultView && (
+                    <section className="notes-section">
+                        <h2 className="section-title">Pinned Focus 📌</h2>
 
-            ))}
+                        <div className="pinned-grid">
+                            {pinnedNotes.map((note) => (
+                                <div
+                                    key={note._id}
+                                    className="recent-note-card"
+                                    onClick={() => {
+                                        setSelectedNote(note);
 
-          </div>
+                                        setShowEditor(true);
+                                    }}
+                                >
+                                    <div className="card-top">
+                                        {/* <span className="note-tag">
+                                            {note.tag}
+                                          </span>
 
-        </section>
+                                          <span className="note-date">
+                                            {note.date}
+                                          </span> */}
+                                    </div>
 
-      </main>
+                                    <h3 className="note-title">{note.title}</h3>
 
-    </div>
-  );
+                                    <p className="note-content">{note.content}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+                {/* RECENT */}
+
+                {isDefaultView && (
+                    <section className="notes-section">
+                        <div className="recent-header">
+                            <h2 className="section-title">Recent Notes</h2>
+                        </div>
+
+                        <div className="recent-grid">
+                            {recentNotes.map((note) => (
+                                <div
+                                    key={note._id}
+                                    className="recent-note-card"
+                                    onClick={() => {
+                                        setSelectedNote(note);
+
+                                        setShowEditor(true);
+                                    }}
+                                >
+                                    <h3 className="note-title">{note.title}</h3>
+
+                                    <p className="note-content">{note.content}</p>
+
+                                    <span className="note-date">{note.date}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {!isDefaultView && (
+                    <section className="notes-section">
+                        <h2 className="section-title">
+                            {isPinnedView
+                                ? "Pinned Notes"
+                                : isArchivedView
+                                  ? "Archived Notes"
+                                  : isTrashView
+                                    ? "Trash"
+                                    : `# ${tags.find((tag) => tag._id === selectedTag)?.name}`}
+                        </h2>
+
+                        <div className="recent-grid">
+                            {filteredNotes.map((note) => (
+                                <div
+                                    key={note._id}
+                                    className="recent-note-card"
+                                    onClick={() => {
+                                        setSelectedNote(note);
+                                        setShowEditor(true);
+                                    }}
+                                >
+                                    <h3 className="note-title">{note.title}</h3>
+
+                                    <p className="note-content">{note.content}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+            </main>
+
+            {showTagModal && <CreateTagModal onClose={() => setShowTagModal(false)} />}
+
+            {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} />}
+            {/* tag is missing */}
+            {showEditor && (
+                <NoteEditorModal
+                    note={selectedNote}
+                    tags={tags}
+                    onClose={() => setShowEditor(false)}
+                    onSave={() => fetchNotesData(search)}
+                />
+            )}
+        </div>
+    );
 }
