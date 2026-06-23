@@ -61,9 +61,7 @@ const getNotes = asyncHandler(async(req, res) => {
   const search = req.query.search?.trim();
 
   const query = {
-    owner,
-    isArchived: false,
-    isTrashed: false
+    owner
   };
 
   if(search){
