@@ -5,7 +5,7 @@
   display: flex;
   min-height: 100vh;
   min-width: 800px;
-  background: #f8f4ec; /* Matches the new app background */
+  background: #f8f4ec; 
 }
 
 /* =========================
@@ -26,7 +26,7 @@
    SIDEBAR (Minimalist Silhouette)
 ========================= */
 .skeleton-sidebar {
-  width: 80px; /* Matches the new collapsed state */
+  width: 80px; 
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -107,7 +107,7 @@
 .skeleton-search {
   width: 300px;
   height: 48px;
-  border-radius: 50px; /* Matches the new search pill */
+  border-radius: 50px; 
 }
 
 .skeleton-icon {

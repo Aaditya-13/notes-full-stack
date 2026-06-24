@@ -7,7 +7,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.7); /* Harsh dark overlay, NO BLUR */
+  background: rgba(0, 0, 0, 0.7);
   z-index: 999;
 }
 

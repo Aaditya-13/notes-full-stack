@@ -44,7 +44,7 @@ export default function LoadingSkeleton() {
         {/* MASONRY GRID SILHOUETTE */}
         <div className="skeleton-section-title brutal-pulse"></div>
         <div className="skeleton-masonry-grid">
-          {/* Staggered heights to fake the masonry look */}
+          
           <div className="skeleton-note-card brutal-pulse" style={{ height: "180px" }}></div>
           <div className="skeleton-note-card brutal-pulse" style={{ height: "260px" }}></div>
           <div className="skeleton-note-card brutal-pulse" style={{ height: "140px" }}></div>

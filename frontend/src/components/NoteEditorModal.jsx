@@ -12,22 +12,27 @@ import {
 import "./NoteEditorModal.css";
 
 function NoteEditorModal({ note = null, tags = [], onClose, onSave }) {
-  const [showTags, setShowTags] = useState(false);
-  // const [showDates, setShowDates] = useState(false);
 
+  //set/show tags
+  const [showTags, setShowTags] = useState(false);
+
+  // pin, archive, trash
   const [isPinned, setIsPinned] = useState(note?.isPinned || false);
   const [isArchived, setIsArchived] = useState(note?.isArchived || false);
   const [isTrashed, setIsTrashed] = useState(note?.isTrashed || false);
 
+  // title and selected tags
   const [title, setTitle] = useState(note?.title || "");
   const [selectedTags, setSelectedTags] = useState(note?.tags?.map(tag => tag._id) || []);
 
+  // start editor
   const editor = useEditor({
     extensions: [StarterKit, Markdown],
     content: note?.content || "",
     immediatelyRender: false
   });
 
+  // setup for modal
   useEffect(() => {
     if (!editor) return;
     editor.commands.setContent(note?.content || "");
@@ -39,10 +44,12 @@ function NoteEditorModal({ note = null, tags = [], onClose, onSave }) {
     setIsTrashed(note?.isTrashed || false);
   }, [note, editor]);
 
+  // on/off tags
   const toggleTag = (tagId) => {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
+  // force update
   const [, forceUpdate] = useState({});
   useEffect(() => {
     if (!editor) return;
@@ -55,6 +62,7 @@ function NoteEditorModal({ note = null, tags = [], onClose, onSave }) {
     };
   }, [editor]);
 
+  // save function to load and save data to backend when clicked on save
   const handleSave = async () => {
     if (!editor) return;
     try {
@@ -97,7 +105,7 @@ function NoteEditorModal({ note = null, tags = [], onClose, onSave }) {
           <EditorContent editor={editor} className="editor-content" />
         </div>
 
-        {/* BRUTALIST TOOLBAR (Keep Style) */}
+        {/*TOOLBAR */}
         <div className="editor-footer">
           <div className="toolbar-group">
             {/* History */}

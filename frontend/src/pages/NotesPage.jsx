@@ -7,7 +7,7 @@ import { getTags } from "../api/tags";
 import getGreeting from "../utility/greetings.js";
 
 import {
-  Plus, Tags, House, Pin, Archive, Trash2, Search,
+  Plus, Tags, House, Pin, Archive, Trash2, Search, Menu
 } from "lucide-react";
 
 import CreateTagModal from "../components/CreateTagModal.jsx";
@@ -31,7 +31,7 @@ export default function NotesPage() {
     const [showTagFilter, setShowTagFilter] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
-    // Fetch Notes Logic
+    // Fetch Notes from backend
     const fetchNotesData = async (searchText = "") => {
         try {
             const response = await getNotes(searchText);
@@ -41,25 +41,35 @@ export default function NotesPage() {
         }
     };
 
-    // Initial Load
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const userResponse = await getCurrentUser();
-                setUser(userResponse.data);
-                await fetchNotesData();
-                const tagsResponse = await getTags();
-                setTags(tagsResponse.data);
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+   
+  // Extract the user fetch so it can be called on demand
+  const fetchUserData = async () => {
+    try {
+      const userResponse = await getCurrentUser();
+      setUser(userResponse.data);
+    } catch (error) {
+      console.log("Failed to refresh user:", error);
+    }
+  };
 
-    // Search Debounce
+  // Initial Load...
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        await fetchUserData(); 
+        await fetchNotesData();
+        const tagsResponse = await getTags();
+        setTags(tagsResponse.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInitialData();
+  }, []);
+
+    // for searching...
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchNotesData(search);
@@ -73,7 +83,7 @@ export default function NotesPage() {
         setShowEditor(true);
     };
 
-    // Filtering Logic
+    // Filtering Logic for pin, trash, archive  
     let filteredNotes = [...notes];
     if (activeTab === "pinned") filteredNotes = filteredNotes.filter(n => n.isPinned);
     if (activeTab === "archived") filteredNotes = filteredNotes.filter(n => n.isArchived);       
@@ -88,9 +98,9 @@ export default function NotesPage() {
     const isTrashView = activeTab === "trash";
     const isDefaultView = activeTab === "all" && !selectedTag;
 
-    // Helper to render Note Cards with brutalist Tag Tape
+    // Helper to render Note Cards
     const renderNoteCard = (note, isPinnedCard = false) => {
-        // Grab the first tag's color to use as the top border tape
+        // to pick tag color for upper border
         const primaryTagColor = note.tags && note.tags.length > 0 ? note.tags[0].color : "#1c1b1b";
         const tagColorWidth = note.tags && note.tags.length > 0 ? "8px": "3px";
         return (
@@ -119,7 +129,7 @@ export default function NotesPage() {
             <aside className={`sidebar ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
                 <div className="sidebar-top">
                     <button className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)}>
-                        ☰
+                        <Menu strokeWidth={2.5} size={20} />
                     </button>
 
                     <button className="create-tag-btn" onClick={() => setShowTagModal(true)}>
@@ -167,7 +177,7 @@ export default function NotesPage() {
 
             {/* MAIN CONTENT */}
             <main className="notes-main">
-                {/* REIMAGINED TOPBAR */}
+                
                 <header className="topbar">
                     <h1 className="logo">INK & IRON</h1>
                     
@@ -186,7 +196,7 @@ export default function NotesPage() {
                             <Tags strokeWidth={2.5} />
                         </button>
                         
-                        {/* BRUTALIST TAG DROPDOWN */}
+                        {/* TAG DROPDOWN */}
                         {showTagFilter && (
                             <div className="tag-filter-popup">
                                 <div className="tag-popup-header">Filter by Tag</div>
@@ -215,7 +225,7 @@ export default function NotesPage() {
                     {getGreeting()}, {`${user?.fullName ? user.fullName : user?.username}`}.
                 </div>
 
-                {/* THE TRIGGER INPUT (Opens Modal) */}
+                {/* TRIGGER INPUT (Opens Note editor Modal) */}
                 <section className="quick-input-container">
                     <div className="quick-input-trigger" onClick={handleTriggerNewNote}>
                         <span className="trigger-text">Take a note...</span>
@@ -225,7 +235,7 @@ export default function NotesPage() {
                     </div>
                 </section>
 
-                {/* MASONRY GRID SECTIONS */}
+                {/* GRID SECTIONS */}
                 {isDefaultView && pinnedNotes.length > 0 && (
                     <section className="notes-section">
                         <h2 className="section-title">Pinned 📌</h2>
@@ -257,7 +267,7 @@ export default function NotesPage() {
             </main>
 
             {showTagModal && <CreateTagModal onClose={() => setShowTagModal(false)} />}
-            {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} />}
+            {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} onUserUpdate={fetchUserData}/>}
             {showEditor && (
                 <NoteEditorModal
                     note={selectedNote}

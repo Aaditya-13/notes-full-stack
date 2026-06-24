@@ -4,15 +4,18 @@ import { createTag } from "../api/tags.js";
 import "./CreateTagModal.css";
 
 function CreateTagModal({ onClose }) {
+  // 6 preset colors
   const presetColors = [
     "#7C3AED", "#2563EB", "#16A34A",
     "#EAB308", "#EA580C", "#DC2626"
   ];
 
+  // default color & tag name
   const [name, setName] = useState("");
   const [color, setColor] = useState("#7C3AED");
   const [loading, setLoading] = useState(false);
 
+  // save function
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;

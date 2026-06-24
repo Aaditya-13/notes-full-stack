@@ -7,7 +7,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.7); /* Harsh dark overlay to match editor */
+  background: rgba(0, 0, 0, 0.7); 
   z-index: 999;
 }
 
@@ -15,7 +15,7 @@
   width: min(500px, 95vw);
   background: #ffffff;
   border: 4px solid #1c1b1b;
-  box-shadow: 12px 12px 0 #1c1b1b; /* Heavy offset shadow */
+  box-shadow: 12px 12px 0 #1c1b1b; 
   padding: 2.5rem;
   position: relative;
 }
@@ -138,7 +138,7 @@
 }
 
 /* =========================
-   PREVIEW (Duct Tape)
+   PREVIEW 
 ========================= */
 .tag-preview-section {
   margin-bottom: 2.5rem;
@@ -199,7 +199,7 @@
 .tag-submit-btn {
   height: 56px;
   padding: 0 2rem;
-  background: #7c3aed; /* Changed from yellow to purple to match primary actions */
+  background: #7c3aed; 
   color: white;
   border: 3px solid #1c1b1b;
   font-weight: 900;
