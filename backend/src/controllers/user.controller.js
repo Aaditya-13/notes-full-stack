@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { options } from "../utils/httpOptions.js";
 import jwt from "jsonwebtoken";
+import { Note } from "../models/note.model.js";
 
 const generateAccessAndRefreshToken = async(userId) => {
   try {
@@ -331,6 +332,109 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
 
 })
 
+
+
+const guestLogin = asyncHandler(async (req, res) => {
+  // Generate a random credentials for the guest
+  const randomString = Math.random().toString(36).substring(2, 8);
+  const username = `guest_${randomString}`;
+  const email = `${username}@inkandiron.local`;
+  const password = `temp_pass_${randomString}`;
+
+  // self-destruct timer for 2 hours from right now
+  const twoHoursFromNow = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+  // create the fake user in the database
+  const guestUser = await User.create({
+    username,
+    email,
+    password,
+    fullName: "Demo Guest",
+    avatar: "", 
+    isGuest: true,
+    expireAt: twoHoursFromNow 
+  });
+
+  if (!guestUser) {
+    throw new ApiError(500, "Failed to forge guest account.");
+  }
+
+
+  // insert some notes for demo
+  await Note.insertMany([
+    {
+      title: "Welcome to INK & IRON 🦾",
+      content: "This is a Neobrutalist workspace. It doesn't ask politely, it just gets things done. \n\nGo ahead and edit this note. The UI won't break.",
+      owner: guestUser._id,
+      isPinned: true,
+      tags: [],
+      expireAt : twoHoursFromNow 
+    },
+    {
+      title: "You can create Tags to organise your notes",
+      content: "Click on create tag on left sidebar bar and choose, then add your tag to this note. \n you can filter notes by tag by using button on top right corner",
+      owner: guestUser._id,
+      isPinned: true,
+      tags: [],
+      expireAt : twoHoursFromNow 
+    },
+    {
+      title: "The Self-Destruct Sequence ⏳",
+      content: "This account is a completely isolated sandbox. You aren't sharing it with anyone else. \n\nIn exactly 2 hours, the backend will vaporize this account and everything you wrote in it to keep the database clean.",
+      owner: guestUser._id,
+      isPinned: false,
+      tags: [],
+      expireAt : twoHoursFromNow
+    },
+    {
+      title: "Formatting Test",
+      content: "# Big Headers\n\n* Bullet points\n* Look\n* Great\n\n1. Numbers too\n2. Try the toolbar at the bottom of the editor.",
+      owner: guestUser._id,
+      isPinned: false,
+      tags: [],
+      expireAt : twoHoursFromNow
+    },
+    {
+      title: "Archived secrets",
+      content: "You shouldn't be looking in here.",
+      owner: guestUser._id,
+      isArchived: true,
+      tags: [],
+      expireAt : twoHoursFromNow
+    },
+    {
+      title: "Delete",
+      content: "You can delete notes from here by clicking on delete button.",
+      owner: guestUser._id,
+      isTrashed: true,
+      tags: [],
+      expireAt : twoHoursFromNow     
+    }
+  ]);
+
+  // generate tokens for guest user
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(guestUser._id);
+
+  const loggedInUser = await User.findById(guestUser._id).select("-password -refreshToken");
+
+  // send response
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(200, {
+        user: loggedInUser, accessToken, refreshToken
+      },
+      "Guest Sandbox Initialized Successfully"
+    ));
+});
+
+
+
+
+
+
 export {
   registerUser,
   loginUser,
@@ -339,5 +443,6 @@ export {
   changePassword,
   updateDetails,
   updateAvatar,
-  refreshAccessToken
+  refreshAccessToken,
+  guestLogin
 }

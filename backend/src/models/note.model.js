@@ -43,6 +43,10 @@ const noteSchema = new Schema(
         }
       ],
       default: []
+    },
+    expireAt: {
+      type: Date,
+      expires: 0 
     }
 
   },

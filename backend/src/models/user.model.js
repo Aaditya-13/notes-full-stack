@@ -32,6 +32,14 @@ const userSchema = new Schema(
     },
     refreshToken: {
       type: String
+    },
+    isGuest: {
+      type: Boolean,
+      default: false
+    },
+    expireAt: {
+      type: Date,
+      expires: 0 
     }
   },
   {timestamps:true}

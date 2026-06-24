@@ -37,6 +37,8 @@ const createNote = asyncHandler(async(req, res) => {
   }
   const user = req.user;
 
+  const expireAt = user.expireAt;
+
   const note = await Note.create({
     title,
     content,
@@ -44,7 +46,8 @@ const createNote = asyncHandler(async(req, res) => {
     isTrashed,
     isArchived,
     tags,
-    owner: user._id
+    owner: user._id,
+    expireAt
   })
 
   return res
