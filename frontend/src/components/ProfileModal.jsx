@@ -1,8 +1,16 @@
 import { useState } from "react";
 import { User, Image as ImageIcon, KeyRound, LogOut, ArrowLeft, X, Eye, EyeOff } from "lucide-react";
+import { logoutUser, updateAvatar, updateDetails, changePassword } from "../api/auth.js";
 import "./ProfileModal.css";
+import { useNavigate } from "react-router-dom";
 
-export default function ProfileModal({ user, onClose }) {
+export default function ProfileModal({ user, onClose, onUserUpdate}) {
+
+  const navigate = useNavigate();
+  
+  // UI Status State: "idle" | "saving" | "saved"
+  const [status, setStatus] = useState("idle");
+
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -17,24 +25,115 @@ export default function ProfileModal({ user, onClose }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const updateDetails = () => {
-    console.log({ fullName, email });
-    // PATCH /users/update-account
+  // change views and reset button states
+  const handleViewChange = (newView) => {
+    setView(newView);
+    setStatus("idle"); // Reset status when switching forms
   };
 
-  const updateAvatar = () => {
-    console.log(avatar);
-    // PATCH /users/avatar
+  const changeDetails = async (e) => {
+      e.preventDefault();
+      setStatus("saving");
+      try {
+        const response = await updateDetails({
+          fullName: fullName,
+          email: email
+        });
+        if (response.success) {
+          await onUserUpdate(); // <-- Fetch fresh data silently in the background
+          setStatus("saved");
+          setTimeout(() => setStatus("idle"), 2000);
+        } else {
+          setStatus("idle");
+        }
+      } catch (error) {
+        console.log(error);
+        setStatus("idle");
+      }
+    };
+
+  const updateAvatarImage = async (e) => {
+      e.preventDefault();
+      setStatus("saving");
+
+      const formData = new FormData();
+      if (avatar) {
+        formData.append("avatar", avatar);
+      }
+
+      try {
+        const response = await updateAvatar(formData);
+        if (response.success) {
+          await onUserUpdate(); // <-- Fetch fresh avatar silently
+          setStatus("saved");
+          setTimeout(() => setStatus("idle"), 2000);
+        } else {
+          setStatus("idle");
+        }
+      } catch (error) {
+        console.log(error);
+        setStatus("idle");
+      }
+    };
+
+  const updatePassword = async (e) => {
+    e.preventDefault();
+    setStatus("saving");
+    try {
+      const response = await changePassword({
+        oldPassword: oldPassword,
+        newPassword: newPassword
+      });
+      if (response.success) {
+        setStatus("saved");
+        setTimeout(() => setStatus("idle"), 2000);
+        
+        // clear the password fields after success
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setStatus("idle");
+      }
+    } catch (error) {
+      console.log(error);
+      setStatus("idle");
+    }
   };
 
-  const updatePassword = () => {
-    console.log({ oldPassword, newPassword, confirmPassword });
-    // PATCH /users/change-password
+  const logout = async (e) => {
+   e.preventDefault();
+   try {
+    const response = await logoutUser();
+    if (response.success) {
+        navigate("/users/login");
+    }
+   } catch (error) {
+    console.log(error);
+   }
   };
 
-  const logout = () => {
-    console.log("logout");
-    // POST /users/logout
+  // dynamic button rendering, save => saving... => saved! again save
+  const renderSaveButton = (onClickAction, defaultText) => {
+    const isProcessing = status !== "idle";
+    let btnText = defaultText;
+    
+    if (status === "saving") btnText = "Saving...";
+    if (status === "saved") btnText = "Saved!!";
+
+    return (
+      <button 
+        className="save-btn" 
+        onClick={onClickAction}
+        disabled={isProcessing}
+        style={{ 
+            opacity: isProcessing ? 0.8 : 1, 
+            cursor: isProcessing ? "not-allowed" : "pointer" 
+        }}
+      >
+        {btnText}
+      </button>
+    );
   };
 
   return (
@@ -44,7 +143,7 @@ export default function ProfileModal({ user, onClose }) {
         {/* HEADER */}
         <div className="profile-header">
           {view !== "menu" ? (
-            <button className="header-back-btn" onClick={() => setView("menu")}>
+            <button className="header-back-btn" onClick={() => handleViewChange("menu")}>
               <ArrowLeft strokeWidth={3} size={24} />
               <span>
                 {view === "details" ? "Update Details" : view === "avatar" ? "Change Avatar" : "Change Password"}
@@ -80,13 +179,13 @@ export default function ProfileModal({ user, onClose }) {
             </div>
 
             <div className="profile-actions">
-              <button className="brutal-action-btn primary" onClick={() => setView("details")}>
+              <button className="brutal-action-btn primary" onClick={() => handleViewChange("details")}>
                 <User strokeWidth={2.5} size={20} /> Update Details
               </button>
-              <button className="brutal-action-btn" onClick={() => setView("avatar")}>
+              <button className="brutal-action-btn" onClick={() => handleViewChange("avatar")}>
                 <ImageIcon strokeWidth={2.5} size={20} /> Change Avatar
               </button>
-              <button className="brutal-action-btn" onClick={() => setView("password")}>
+              <button className="brutal-action-btn" onClick={() => handleViewChange("password")}>
                 <KeyRound strokeWidth={2.5} size={20} /> Change Password
               </button>
               <button className="brutal-action-btn danger" onClick={logout}>
@@ -108,8 +207,8 @@ export default function ProfileModal({ user, onClose }) {
                 <input value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="form-actions">
-              <button className="cancel-btn" onClick={() => setView("menu")}>Cancel</button>
-              <button className="save-btn" onClick={updateDetails}>Save Changes</button>
+              <button className="cancel-btn" onClick={() => handleViewChange("menu")} disabled={status !== "idle"}>Cancel</button>
+              {renderSaveButton(changeDetails, "Save Changes")}
             </div>
           </div>
         )}
@@ -122,8 +221,8 @@ export default function ProfileModal({ user, onClose }) {
                 <input type="file" accept="image/*" className="file-input" onChange={(e) => setAvatar(e.target.files[0])} />
             </div>
             <div className="form-actions">
-              <button className="cancel-btn" onClick={() => setView("menu")}>Cancel</button>
-              <button className="save-btn" onClick={updateAvatar}>Upload Avatar</button>
+              <button className="cancel-btn" onClick={() => handleViewChange("menu")} disabled={status !== "idle"}>Cancel</button>
+              {renderSaveButton(updateAvatarImage, "Upload Avatar")}
             </div>
           </div>
         )}
@@ -162,8 +261,8 @@ export default function ProfileModal({ user, onClose }) {
             </div>
 
             <div className="form-actions">
-              <button className="cancel-btn" onClick={() => setView("menu")}>Cancel</button>
-              <button className="save-btn" onClick={updatePassword}>Update Password</button>
+              <button className="cancel-btn" onClick={() => handleViewChange("menu")} disabled={status !== "idle"}>Cancel</button>
+              {renderSaveButton(updatePassword, "Update Password")}
             </div>
           </div>
         )}
