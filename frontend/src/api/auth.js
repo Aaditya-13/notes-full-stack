@@ -30,10 +30,28 @@ const logoutUser = async () => {
   return response.data;
 };
 
+const changePassword = async (data) => {
+  const response = await api.patch("/users/change-password", data)
+  return response.data
+}
+
+const updateDetails = async (data) => {
+  const response = await api.patch("/users/update-details", data)
+  return response.data
+}
+
+const updateAvatar = async (formData) => {
+  const response = await api.patch("/users/update-avatar", formData)
+  return response.data
+}
+
 
 export {
   loginUser,
   registerUser,
   getCurrentUser,
-  logoutUser
+  logoutUser,
+  changePassword,
+  updateAvatar,
+  updateDetails
 }
