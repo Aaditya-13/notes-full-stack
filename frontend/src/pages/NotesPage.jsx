@@ -249,7 +249,7 @@ export default function NotesPage() {
                     <section className="notes-section">
                         <h2 className="section-title">Others</h2>
                         <div className="masonry-grid">
-                            {recentNotes.filter(n => !n.isPinned).map((note) => renderNoteCard(note, false))}
+                            {recentNotes.filter(n => !n.isPinned && !n.isArchived && !n.isTrashed).map((note) => renderNoteCard(note, false))}
                         </div>
                     </section>
                 )}

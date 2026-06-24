@@ -9,6 +9,12 @@ const loginUser = async (data) => {
   return response.data
 }
 
+const guestLogin = async () => {
+  const response = await api.post("users/guest-login");
+
+  return response.data
+}
+
 
 const registerUser = async (formData) => {
   const response = await api.post(
@@ -53,5 +59,6 @@ export {
   logoutUser,
   changePassword,
   updateAvatar,
-  updateDetails
+  updateDetails,
+  guestLogin
 }
