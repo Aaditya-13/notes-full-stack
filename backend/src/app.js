@@ -20,6 +20,8 @@ app.use(cookieParser())
 
 app.use("/api", globalLimiter)
 
+app.set("trust proxy", 1);
+
 // import routes
 import userRouter from "./routes/user.routes.js"
 
