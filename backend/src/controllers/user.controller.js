@@ -73,9 +73,34 @@ const registerUser = asyncHandler(async (req, res) => {
   //get created user from db and check if user successfully created(omit password & refresh token)
   const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
-  if(!createdUser){
-    throw new ApiError(500, "Something Went Wrong, user not created!!")
+  if (!createdUser) {
+    throw new ApiError(500, "Something went wrong, user not created!!");
   }
+
+  // insert tutorial notes
+  await Note.insertMany([
+    {
+      title: "Welcome to INK & IRON 🦾",
+      content: "Welcome to your new workspace. INK & IRON is designed for speed, efficiency, and clarity.\n\n**Getting Started:**\n\n• **Pinning:** Use the pin icon to keep important notes at the top of your dashboard.\n\n• **Editing:** Click on any note card (including this one) to open the editor and update your content.\n\nExplore the interface and start capturing your ideas.",
+      owner: user._id,
+      isPinned: true,
+      tags: [],
+    },
+    {
+      title: "Organizing with Tags 🏷️",
+      content: "Tags provide a flexible way to categorize your notes without the constraints of traditional folders.\n\n1. Click **+ New Tag** in the sidebar to create a custom, color-coded label.\n\n2. Apply a tag to a note to add a visual indicator to the top of the card.\n\n3. Use the **Tags Icon** in the top-right corner to filter your view and locate specific notes quickly.\n\n*Note: Deleting a tag globally from the dropdown will automatically remove it from all associated notes in your database.*",
+      owner: user._id,
+      isPinned: false,
+      tags: [],
+    },
+    {
+      title: "Archive & Trash Management 🗄️",
+      content: "Maintain a clean workspace by managing notes you no longer actively need.\n\n• **Archive:** Move notes here to hide them from your main dashboard while keeping them safely stored for future reference.\n\n• **Trash:** Deleted notes are temporarily moved to the Trash tab in the sidebar.\n\n⚠️ **Permanent Deletion:** Clicking the delete icon while inside the Trash view will permanently remove the note from the database. This action cannot be undone.",
+      owner: user._id,
+      isPinned: false,
+      tags: [],
+    }
+  ]);
   
   //return response to user 
   return res
