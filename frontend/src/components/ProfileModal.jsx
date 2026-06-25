@@ -40,7 +40,7 @@ export default function ProfileModal({ user, onClose, onUserUpdate}) {
           email: email
         });
         if (response.success) {
-          await onUserUpdate(); // <-- Fetch fresh data silently in the background
+          await onUserUpdate(); 
           setStatus("saved");
           setTimeout(() => setStatus("idle"), 2000);
         } else {
@@ -64,7 +64,7 @@ export default function ProfileModal({ user, onClose, onUserUpdate}) {
       try {
         const response = await updateAvatar(formData);
         if (response.success) {
-          await onUserUpdate(); // <-- Fetch fresh avatar silently
+          await onUserUpdate();
           setStatus("saved");
           setTimeout(() => setStatus("idle"), 2000);
         } else {

@@ -20,7 +20,7 @@ const updateTag = async(id, data) => {
 }
 
 const deleteTag = async(id) => {
-  const response = await api.patch(`/tags/${id}`)
+  const response = await api.delete(`/tags/${id}`)
 
   return response.data
 }

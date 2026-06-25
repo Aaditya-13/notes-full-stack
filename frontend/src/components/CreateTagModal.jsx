@@ -3,7 +3,7 @@ import { X, Tags } from "lucide-react";
 import { createTag } from "../api/tags.js";
 import "./CreateTagModal.css";
 
-function CreateTagModal({ onClose }) {
+function CreateTagModal({ onClose, onSave }) {
   // 6 preset colors
   const presetColors = [
     "#7C3AED", "#2563EB", "#16A34A",
@@ -24,6 +24,7 @@ function CreateTagModal({ onClose }) {
       setLoading(true);
       const response = await createTag({ name, color });
       console.log(response);
+      await onSave();
       onClose();
     } catch (error) {
       console.log(error);

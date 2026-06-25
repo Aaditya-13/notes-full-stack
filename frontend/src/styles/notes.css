@@ -289,6 +289,60 @@
 }
 
 /* =========================
+   TAG DROPDOWN ACTIONS
+========================= */
+.tag-item-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+/* Ensure the filter button takes up the remaining space and text doesn't overflow */
+.tag-item-wrapper .filter-item {
+  flex: 1;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  overflow: hidden;
+}
+
+.filter-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delete-tag-cross {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 2px solid transparent;
+  color: #1c1b1b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.1s ease-in-out;
+}
+
+.delete-tag-cross:hover {
+  background: #fca5a5;
+  border: 2px solid #1c1b1b;
+  color: #dc2626;
+  box-shadow: 2px 2px 0 #1c1b1b;
+  transform: translate(-1px, -1px);
+}
+
+.delete-tag-cross:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0 #1c1b1b;
+}
+
+/* =========================
    TRIGGER INPUT BAR
 ========================= */
 .quick-input-container {
@@ -375,6 +429,11 @@
 .note-card:hover { transform: translate(-2px, -4px); box-shadow: 10px 10px 0 #1c1b1b; }
 .note-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #1c1b1b; }
 
+/* =========================
+   NOTE CARD HEADER & DELETE
+========================= */
+
+/* The tag pill now sits independently at the top */
 .card-tag-pill {
   display: inline-block;
   padding: 0.15rem 0.5rem;
@@ -382,8 +441,50 @@
   color: white;
   font-size: 0.75rem;
   font-weight: 800;
-  margin-bottom: 0.75rem;
   text-transform: uppercase;
+  margin-bottom: 0.75rem; /* Pushes the title row down safely */
+}
+
+/* New row to keep Title and Delete Button on the same line */
+.note-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.note-title-row .note-title {
+  margin-bottom: 0; /* Lets the row handle the spacing */
+  flex: 1; /* Pushes the delete button all the way to the right */
+  word-break: break-word; /* Prevents long unbreakable titles from pushing the button off-screen */
+}
+
+.permanent-delete-btn {
+  flex-shrink: 0; /* CRITICAL: Prevents a long title from crushing the button size */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+  border: 2px solid #1c1b1b;
+  color: #dc2626;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #1c1b1b;
+  transition: 0.1s ease-in-out;
+}
+
+.permanent-delete-btn:hover {
+  background: #fca5a5;
+  color: #1c1b1b;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #1c1b1b;
+}
+
+.permanent-delete-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0 #1c1b1b;
 }
 
 .note-title {

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "../api/auth.js";
-import { getNotes } from "../api/notes.js";
+import { getNotes, deleteNote } from "../api/notes.js";
 import "../styles/notes.css";
 import LoadingSkeleton from "../components/LoadingSkeleton.jsx";
-import { getTags } from "../api/tags";
+import { getTags, deleteTag } from "../api/tags";
 import getGreeting from "../utility/greetings.js";
 
 import {
-  Plus, Tags, House, Pin, Archive, Trash2, Search, Menu
+  Plus, Tags, House, Pin, Archive, Trash2, Search, Menu, X
 } from "lucide-react";
 
 import CreateTagModal from "../components/CreateTagModal.jsx";
@@ -41,8 +41,52 @@ export default function NotesPage() {
         }
     };
 
+    // for tags
+    const updateTagsData = async () => {
+        try {
+            const tagsResponse = await getTags();
+            setTags(tagsResponse.data);
+        } catch (error) {
+            console.log("Failed to refresh tags:", error);
+        }
+    };
+
+    // permanent delete
+    const handlePermanentDelete = async (e, noteId) => {
+        e.stopPropagation(); 
+        
+        if (window.confirm("Are you sure you want to permanently obliterate this note?")) {
+            try {
+                await deleteNote(noteId); 
+                fetchNotesData(search);
+            } catch (error) {
+                console.log("Failed to incinerate note:", error);
+            }
+        }
+    };
+
+    // delete tag
+    const handleDeleteTag = async (e, tagId) => {
+        e.stopPropagation(); 
+        
+        if (window.confirm("Are you sure? This will delete the tag globally and remove it from all notes.")) {
+            try {
+                await deleteTag(tagId);
+                
+                if (selectedTag === tagId) {
+                    setSelectedTag(null);
+                }
+                
+                await updateTagsData();
+                fetchNotesData(search);
+            } catch (error) {
+                console.log("Failed to delete tag:", error);
+            }
+        }
+    };
+
    
-  // Extract the user fetch so it can be called on demand
+  // get current user data 
   const fetchUserData = async () => {
     try {
       const userResponse = await getCurrentUser();
@@ -58,6 +102,7 @@ export default function NotesPage() {
       try {
         await fetchUserData(); 
         await fetchNotesData();
+        await updateTagsData();
         const tagsResponse = await getTags();
         setTags(tagsResponse.data);
       } catch (error) {
@@ -99,10 +144,11 @@ export default function NotesPage() {
     const isDefaultView = activeTab === "all" && !selectedTag;
 
     // Helper to render Note Cards
-    const renderNoteCard = (note, isPinnedCard = false) => {
+const renderNoteCard = (note, isPinnedCard = false) => {
         // to pick tag color for upper border
         const primaryTagColor = note.tags && note.tags.length > 0 ? note.tags[0].color : "#1c1b1b";
         const tagColorWidth = note.tags && note.tags.length > 0 ? "8px": "3px";
+        
         return (
             <div 
                 key={note._id} 
@@ -115,7 +161,22 @@ export default function NotesPage() {
                         {note.tags[0].name}
                     </div>
                 )}
-                <h3 className="note-title">{note.title || "Untitled"}</h3>
+                
+                {/* Wrapped Title and Delete Button in a flex row */}
+                <div className="note-title-row">
+                    <h3 className="note-title">{note.title || "Untitled"}</h3>
+                    
+                    {isTrashView && (
+                        <button 
+                            className="permanent-delete-btn" 
+                            onClick={(e) => handlePermanentDelete(e, note._id)}
+                            title="Permanently Delete"
+                        >
+                            <Trash2 size={16} strokeWidth={3} />
+                        </button>
+                  )}
+                </div>
+
                 <p className="note-content">{note.content}</p>
             </div>
         );
@@ -196,25 +257,37 @@ export default function NotesPage() {
                             <Tags strokeWidth={2.5} />
                         </button>
                         
-                        {/* TAG DROPDOWN */}
                         {showTagFilter && (
                             <div className="tag-filter-popup">
                                 <div className="tag-popup-header">Filter by Tag</div>
+                                
                                 <button 
                                     className={`filter-item ${selectedTag === null ? 'selected' : ''}`} 
                                     onClick={() => { setSelectedTag(null); setShowTagFilter(false); }}
+                                    style={{ width: '100%' }}
                                 >
                                     All Notes
                                 </button>
+                                
                                 {tags.map((tag) => (
-                                    <button 
-                                        key={tag._id} 
-                                        className={`filter-item ${selectedTag === tag._id ? 'selected' : ''}`}
-                                        onClick={() => { setSelectedTag(tag._id); setShowTagFilter(false); }}
-                                    >
-                                        <span className="filter-color-dot" style={{ backgroundColor: tag.color }}></span>
-                                        {tag.name}
-                                    </button>
+                                    <div key={tag._id} className="tag-item-wrapper">
+                                        <button 
+                                            className={`filter-item ${selectedTag === tag._id ? 'selected' : ''}`}
+                                            onClick={() => { setSelectedTag(tag._id); setShowTagFilter(false); }}
+                                        >
+                                            <span className="filter-color-dot" style={{ backgroundColor: tag.color }}></span>
+                                            <span className="filter-name">{tag.name}</span>
+                                        </button>
+                                        
+                                        {/* THE NEW DELETE BUTTON */}
+                                        <button 
+                                            className="delete-tag-cross" 
+                                            onClick={(e) => handleDeleteTag(e, tag._id)}
+                                            title="Delete Tag"
+                                        >
+                                            <X size={16} strokeWidth={3} />
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -266,7 +339,7 @@ export default function NotesPage() {
                 )}
             </main>
 
-            {showTagModal && <CreateTagModal onClose={() => setShowTagModal(false)} />}
+            {showTagModal && <CreateTagModal onClose={() => setShowTagModal(false)} onSave={() => updateTagsData()} />}
             {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} onUserUpdate={fetchUserData}/>}
             {showEditor && (
                 <NoteEditorModal
