@@ -2,10 +2,12 @@ import { Router } from "express";
 import {upload} from "../middlewares/multer.middleware.js";
 import { registerUser, loginUser, getCurrentUser, logoutUser, changePassword, updateDetails, updateAvatar, refreshAccessToken, guestLogin } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 const router = Router()
 
 router.route("/register").post(
+  authLimiter,
   upload.fields([{
     name: "avatar",
     maxCount: 1
@@ -13,11 +15,11 @@ router.route("/register").post(
   registerUser
 )
 
-router.route("/login").post(loginUser)
+router.route("/login").post(authLimiter, loginUser)
 
 router.route("/refresh-token").post(refreshAccessToken)
 
-router.route("/guest-login").post(guestLogin);
+router.route("/guest-login").post(authLimiter, guestLogin);
 
 //secure routes
 router.route("/current-user").get(verifyJWT, getCurrentUser)
