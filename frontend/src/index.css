@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --color-brutal-yellow: #f4dd45;
+  --color-brutal-purple: #7c3aed;
+  --color-brutal-bg: #f8f4ec;
+  --color-brutal-dark: #1c1b1b;
+  --color-brutal-danger: #ef4444;
+  --color-brutal-warning: #ea580c;
+  --color-brutal-green: #16a34a;
+}
+
+@utility brutal-shadow {
+  box-shadow: 4px 4px 0px var(--color-brutal-dark);
+}
+
+@utility brutal-shadow-lg {
+  box-shadow: 8px 8px 0px var(--color-brutal-dark);
+}
+
+@utility brutal-shadow-xl {
+  box-shadow: 12px 12px 0px var(--color-brutal-dark);
+}
+
+@utility brutal-shadow-hover {
+  transition: all 0.15s ease-in-out;
+  
+  &:hover {
+    box-shadow: 6px 6px 0px var(--color-brutal-dark);
+    transform: translate(-2px, -2px);
+  }
+  
+  &:active {
+    box-shadow: 2px 2px 0px var(--color-brutal-dark);
+    transform: translate(2px, 2px);
+  }
+}
+
+@utility brutal-shadow-active {
+  &:active {
+    box-shadow: none;
+    transform: translate(4px, 4px);
+  }
+}
+
+@utility bg-pattern {
+  background-image: radial-gradient(#898195 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@utility brutal-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    background-color: rgba(28, 27, 27, 0.15);
+  }
+  50% {
+    opacity: .5;
+    background-color: rgba(28, 27, 27, 0.05);
+  }
+}
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  outline: none;
+  min-height: 250px;
+}
+
+.ProseMirror p {
+  margin: 0.5rem 0;
+}
+
+.ProseMirror h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  margin: 1rem 0;
+  color: var(--color-brutal-dark);
+}
+
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0.75rem 0;
+  color: var(--color-brutal-dark);
+}
+
+.ProseMirror ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}

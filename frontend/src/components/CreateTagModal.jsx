@@ -1,110 +1,134 @@
 import { useState } from "react";
-import { X, Tags } from "lucide-react";
+import { Tags } from "lucide-react";
 import { createTag } from "../api/tags.js";
-import "./CreateTagModal.css";
+import { useToast } from "../utility/ToastContext.jsx";
+import BrutalModal from "./BrutalModal.jsx";
 
-function CreateTagModal({ onClose, onSave }) {
-  // 6 preset colors
+export default function CreateTagModal({ onClose, onSave }) {
+  const { showToast } = useToast();
+
   const presetColors = [
-    "#7C3AED", "#2563EB", "#16A34A",
-    "#EAB308", "#EA580C", "#DC2626"
+    "#7C3AED", // Violet
+    "#2563EB", // Blue
+    "#16A34A", // Green
+    "#EAB308", // Yellow
+    "#EA580C", // Orange
+    "#DC2626", // Red
   ];
 
-  // default color & tag name
   const [name, setName] = useState("");
   const [color, setColor] = useState("#7C3AED");
   const [loading, setLoading] = useState(false);
 
-  // save function
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      showToast("Tag name cannot be empty.", "warning");
+      return;
+    }
 
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await createTag({ name, color });
-      console.log(response);
-      await onSave();
-      onClose();
+      const response = await createTag({ name: name.trim(), color });
+      if (response && response.success) {
+        showToast(`Tag "${name.trim()}" forged successfully!`, "success");
+        await onSave();
+        onClose();
+      } else {
+        showToast(response?.message || "Failed to create tag.", "error");
+      }
     } catch (error) {
-      console.log(error);
+      const msg = error.response?.data?.message || "Failed to create tag.";
+      showToast(msg, "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="tag-modal" onClick={(e) => e.stopPropagation()}>
+    <BrutalModal
+      onClose={onClose}
+      title="Create Tag"
+      icon={<Tags size={28} strokeWidth={3} className="text-brutal-purple" />}
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6 font-bold">
         
-        {/* MODAL HEADER */}
-        <div className="tag-modal-header">
-          <div>
-            <h2 className="tag-modal-title">
-              <Tags size={28} strokeWidth={3} className="header-icon"/> 
-              Create Tag
-            </h2>
-            <p className="tag-modal-subtitle">Forge a new label for your notes.</p>
+        {/* Tag Name Input */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-black uppercase tracking-wider text-gray-700">
+            Tag Name
+          </label>
+          <input
+            className="w-full border-3 border-brutal-dark p-3 text-lg font-bold bg-gray-50 outline-none transition-all focus:bg-white focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[3px_3px_0px_#7c3aed]"
+            placeholder="e.g., React Ideas"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+            disabled={loading}
+            required
+          />
+        </div>
+
+        {/* Color Palette Choice */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-black uppercase tracking-wider text-gray-700">
+            Paint Color
+          </label>
+          <div className="flex flex-wrap gap-3">
+            {presetColors.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                className={`w-10 h-10 border-3 border-brutal-dark transition-all cursor-pointer ${
+                  color === preset
+                    ? "scale-105 shadow-[0_0_0_2px_#ffffff,0_0_0_4px_#1c1b1b]"
+                    : "hover:scale-105"
+                }`}
+                style={{ backgroundColor: preset }}
+                onClick={() => setColor(preset)}
+                disabled={loading}
+                aria-label={`Select color ${preset}`}
+              />
+            ))}
           </div>
-          <button className="tag-close-btn" onClick={onClose}>
-            <X strokeWidth={3} size={24}/>
+        </div>
+
+        {/* Tag Preview */}
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-black uppercase tracking-wider text-gray-700">
+            Preview
+          </span>
+          <div className="border-3 border-brutal-dark bg-gray-100 p-4 brutal-shadow flex justify-center items-center">
+            <div
+              className="px-4 py-2 border-2 border-brutal-dark text-white font-black uppercase tracking-wide text-sm"
+              style={{ backgroundColor: color }}
+            >
+              # {name.trim() ? name.trim() : "React Ideas"}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 mt-4">
+          <button
+            type="button"
+            className="px-5 py-3 border-3 border-brutal-dark bg-white font-black uppercase text-sm cursor-pointer hover:bg-gray-150 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          
+          <button
+            type="submit"
+            className="px-5 py-3 border-3 border-brutal-dark bg-brutal-yellow text-brutal-dark font-black uppercase text-sm cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#1c1b1b] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#1c1b1b] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+          >
+            {loading ? "Forging..." : "Create Tag"}
           </button>
         </div>
 
-        {/* MODAL FORM */}
-        <form onSubmit={handleSubmit} className="tag-form">
-          
-          <div className="tag-field">
-            <label className="tag-label">Tag Name</label>
-            <input
-              className="tag-input"
-              placeholder="e.g., React Ideas"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-            />
-          </div>
-
-          <div className="tag-field">
-            <label className="tag-label">Paint Color</label>
-            <div className="preset-colors">
-              {presetColors.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  className={`color-swatch ${color === preset ? "selected-swatch" : ""}`}
-                  style={{ backgroundColor: preset }}
-                  onClick={() => setColor(preset)}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="tag-preview-section">
-            <span className="preview-label">Preview</span>
-            <div className="tag-preview-box">
-                <div 
-                  className="tag-preview" 
-                  style={{ backgroundColor: color }}
-                >
-                  # {name.trim() ? name : "React Ideas"}
-                </div>
-            </div>
-          </div>
-
-          <div className="tag-actions">
-            <button type="button" className="tag-cancel-btn" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="tag-submit-btn" disabled={loading}>
-              {loading ? "Forging..." : "Create Tag"}
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
+      </form>
+    </BrutalModal>
   );
 }
-
-export default CreateTagModal;
